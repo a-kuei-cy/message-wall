@@ -1,1930 +1,230 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>興嘉國小 互動學習便利貼牆 | Xing-Jia EduWall</title>
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Google Fonts: Noto Sans TC -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-  
-  <!-- QRCode.js Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-  <style>
-    body {
-      font-family: 'Noto Sans TC', sans-serif;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    
-    /* Sticky note color styles */
-    .note-yellow { background-color: #fef9c3; border-top: 8px solid #fde047; }
-    .note-pink { background-color: #ffe4e6; border-top: 8px solid #fda4af; }
-    .note-blue { background-color: #e0f2fe; border-top: 8px solid #7dd3fc; }
-    .note-green { background-color: #dcfce7; border-top: 8px solid #86efac; }
-    .note-purple { background-color: #f3e8ff; border-top: 8px solid #d8b4fe; }
-    .note-orange { background-color: #ffedd5; border-top: 8px solid #fdba74; }
-
-    /* Washi tape effect on top of sticky note */
-    .washi-tape {
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%) rotate(-1.5deg);
-      width: 90px;
-      height: 22px;
-      background-color: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(2px);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-      border-left: 2px dashed rgba(0,0,0,0.15);
-      border-right: 2px dashed rgba(0,0,0,0.15);
-      pointer-events: none;
-      z-index: 10;
-    }
-
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 7px;
-      height: 7px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(0,0,0,0.05);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(0,0,0,0.2);
-      border-radius: 4px;
-    }
-
-    /* Canvas Grid Dot Pattern */
-    .bg-grid-dots {
-      background-image: radial-gradient(rgba(0, 0, 0, 0.12) 1.5px, transparent 1.5px);
-      background-size: 24px 24px;
-    }
-    
-    .bg-grid-cork {
-      background-color: #f6ebd9;
-      background-image: radial-gradient(#d6c09b 0.75px, transparent 0.75px);
-      background-size: 16px 16px;
-    }
-    
-    .bg-chalkboard {
-      background-color: #1e3a34;
-      background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
-      background-size: 20px 20px;
-    }
-
-    /* 萬用節慶專屬背景樣式 */
-    .bg-carnation-pink {
-      background-color: #fff1f2;
-      background-image: radial-gradient(#f43f5e 0.65px, transparent 0.65px), radial-gradient(#fb7185 0.65px, #fff1f2 0.65px);
-      background-size: 26px 26px;
-      background-position: 0 0, 13px 13px;
-    }
-
-    .bg-warm-teacher {
-      background-color: #fefce8;
-      background-image: radial-gradient(#d97706 0.65px, transparent 0.65px);
-      background-size: 20px 20px;
-    }
-
-    .bg-festive-sports {
-      background-color: #fff7ed;
-      background-image: linear-gradient(135deg, rgba(249, 115, 22, 0.08) 25%, transparent 25%), linear-gradient(225deg, rgba(249, 115, 22, 0.08) 25%, transparent 25%);
-      background-size: 28px 28px;
-    }
-
-    .bg-graduation-sky {
-      background-color: #f0fdf4;
-      background-image: linear-gradient(to bottom, #e0f2fe, #f0fdf4);
-    }
-
-    .bg-winter-festive {
-      background-color: #f8fafc;
-      background-image: radial-gradient(#94a3b8 1px, transparent 1px);
-      background-size: 24px 24px;
-    }
-
-    /* Smooth Drag transitions */
-    .card-draggable {
-      touch-action: none;
-      cursor: grab;
-    }
-    .card-draggable:active {
-      cursor: grabbing;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>興嘉國小 萬用互動學習便利貼牆</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #f3f4f6; }
+        .masonry { column-count: 1; column-gap: 1rem; }
+        @media (min-width: 640px) { .masonry { column-count: 2; } }
+        @media (min-width: 768px) { .masonry { column-count: 3; } }
+        @media (min-width: 1024px) { .masonry { column-count: 4; } }
+        .masonry-item { break-inside: avoid; margin-bottom: 1rem; display: inline-block; width: 100%; }
+        .note-card { transition: transform 0.2s; }
+        .note-card:hover { transform: translateY(-5px); }
+    </style>
 </head>
-
-<body class="min-h-screen bg-amber-50 text-slate-800 flex flex-col antialiased">
-  
-  <!-- Top Navigation Header -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md shadow-sm border-b border-amber-200">
-    <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-2">
-      
-      <!-- School Logo & Wall Title -->
-      <div class="flex items-center space-x-3 cursor-pointer" onclick="openWallSettingsModal()">
-        <div class="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-md font-bold text-lg ring-2 ring-amber-300">
-          <i class="fa-solid fa-chalkboard-user"></i>
-        </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 tracking-wider">嘉義市興嘉國小</span>
-            <span id="wallModerationBadge" class="hidden text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-medium"><i class="fa-solid fa-shield-halved mr-1"></i>審核中</span>
-            <span id="wallLockedBadge" class="hidden text-xs px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-medium"><i class="fa-solid fa-lock mr-1"></i>投稿關閉</span>
-          </div>
-          <h1 id="wallTitleDisplay" class="text-base sm:text-lg font-bold text-slate-800 truncate max-w-[220px] sm:max-w-md flex items-center gap-1.5 hover:text-amber-600 transition">
-            <span>晨讀心得分享牆</span>
-            <i class="fa-solid fa-pen text-xs text-slate-400"></i>
-          </h1>
-        </div>
-      </div>
-
-      <!-- Action Buttons Toolbar -->
-      <div class="flex items-center space-x-1.5 sm:space-x-2 text-sm">
-        
-        <!-- View mode toggler: Masonry Grid / Free Board -->
-        <div class="bg-slate-100 p-1 rounded-xl flex items-center shadow-inner border border-slate-200">
-          <button id="viewGridBtn" onclick="setViewMode('grid')" title="自動瀑布流排列" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-white text-slate-800 shadow-sm transition">
-            <i class="fa-solid fa-table-cells-large mr-1"></i>瀑布流
-          </button>
-          <button id="viewFreeBtn" onclick="setViewMode('free')" title="自由拖曳卡片" class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition">
-            <i class="fa-solid fa-hand mr-1"></i>自由拖曳
-          </button>
-        </div>
-
-        <!-- Presets / Festival Theme Switcher Button -->
-        <button onclick="openPresetsModal()" class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl border border-amber-300 text-amber-900 bg-amber-100/80 hover:bg-amber-200/90 transition flex items-center space-x-1 shadow-sm" title="一鍵切換節慶活動或課堂範本">
-          <i class="fa-solid fa-palette text-amber-600"></i>
-          <span class="font-bold text-xs sm:text-sm">切換主題與節慶</span>
-        </button>
-
-        <!-- QR Code Share Button -->
-        <button onclick="openQrModal()" class="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 transition flex items-center space-x-1" title="產生學生手機/平板投稿 QR Code">
-          <i class="fa-solid fa-qrcode text-amber-600"></i>
-          <span class="hidden sm:inline font-medium text-xs">QR 碼</span>
-        </button>
-
-        <!-- Cloud Sync Status Indicator / Refresh Button -->
-        <button id="cloudRefreshBtn" onclick="fetchCloudData(true)" class="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-indigo-200 text-indigo-700 bg-indigo-50/70 hover:bg-indigo-100 transition flex items-center space-x-1" title="從 Google 試算表拉取最新卡片">
-          <i id="cloudRefreshIcon" class="fa-solid fa-arrows-rotate text-xs"></i>
-          <span id="cloudStatusText" class="hidden sm:inline font-medium text-xs">雲端同步</span>
-        </button>
-
-        <!-- Teacher Mode Switch -->
-        <button id="teacherModeToggleBtn" onclick="handleTeacherModeClick()" class="px-3 py-1.5 rounded-xl bg-slate-800 text-white hover:bg-slate-700 transition flex items-center space-x-1 shadow-sm font-medium">
-          <i class="fa-solid fa-user-gear"></i>
-          <span id="teacherModeBtnText" class="text-xs sm:text-sm">教師管理</span>
-        </button>
-
-        <!-- Submit Post Button (CTA) -->
-        <button id="mainPostBtn" onclick="openPostModal()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold shadow-md hover:shadow-lg transition flex items-center space-x-1.5 animate-pulse hover:animate-none">
-          <i class="fa-solid fa-circle-plus"></i>
-          <span>我要投稿</span>
-        </button>
-      </div>
-
-    </div>
-
-    <!-- Teacher Admin Mode Bar (Visible only when logged in as teacher) -->
-    <div id="teacherAdminBar" class="hidden bg-slate-900 text-slate-100 px-4 py-2 border-t border-slate-700 text-xs">
-      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center space-x-3">
-          <span class="bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold flex items-center">
-            <i class="fa-solid fa-circle-check mr-1 text-[10px]"></i>教師模式運作中
-          </span>
-          <span id="adminPendingCountText" class="text-amber-300 font-medium">待審核：0 篇</span>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <!-- Toggle Submissions Open/Close -->
-          <button onclick="toggleWallSubmissionLock()" id="toggleLockBtn" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition">
-            <i class="fa-solid fa-lock mr-1"></i>關閉投稿
-          </button>
-          <!-- Toggle Moderation -->
-          <button onclick="toggleWallModeration()" id="toggleModBtn" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition">
-            <i class="fa-solid fa-shield-halved mr-1"></i>審核制：關
-          </button>
-          <!-- Toggle Student Names Visibility -->
-          <button onclick="toggleHideNames()" id="toggleHideNameBtn" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition">
-            <i class="fa-solid fa-eye-slash mr-1"></i>遮蔽學生姓名
-          </button>
-          <!-- Moderate Posts Modal -->
-          <button onclick="openModerationModal()" class="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-medium transition">
-            <i class="fa-solid fa-inbox mr-1"></i>審核箱 (<span id="modBadgeCount">0</span>)
-          </button>
-          <!-- Export CSV -->
-          <button onclick="exportWallToCSV()" class="px-2.5 py-1 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-medium transition" title="匯出 Excel / CSV 格式打分數">
-            <i class="fa-solid fa-file-excel mr-1"></i>匯出 CSV
-          </button>
-          <!-- Cloud Sync Google Sheet Config -->
-          <button onclick="openGasModal()" class="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition" title="Google 試算表同步擴充">
-            <i class="fa-solid fa-cloud mr-1"></i>試算表同步
-          </button>
-          <!-- Clear All -->
-          <button onclick="confirmClearWall()" class="px-2.5 py-1 rounded-lg bg-rose-700 hover:bg-rose-600 text-white font-medium transition">
-            <i class="fa-solid fa-trash-can mr-1"></i>清空牆面
-          </button>
-          <!-- Exit Teacher Mode -->
-          <button onclick="logoutTeacherMode()" class="px-2.5 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition">
-            <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>登出
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Wall Banner Section -->
-  <section id="wallBanner" class="relative bg-gradient-to-r from-amber-100 via-orange-50 to-yellow-100 border-b border-amber-200 py-6 px-4 transition-all duration-300">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-      <div class="space-y-1 max-w-3xl">
-        <div class="flex items-center space-x-2">
-          <span id="wallBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-500 text-white uppercase tracking-wide">
-            閱讀推廣
-          </span>
-          <span class="text-xs text-slate-500 flex items-center">
-            <i class="fa-regular fa-clock mr-1"></i>更新時間：<span id="wallLastUpdated">剛剛</span>
-          </span>
-        </div>
-        <h2 id="wallDescriptionDisplay" class="text-slate-700 font-medium text-sm sm:text-base leading-relaxed">
-          歡迎興嘉國小的同學們！讀完一本好書後，請寫下 50 字心得與喜愛的一句話，並拍照上傳與全班分享喔！
-        </h2>
-      </div>
-
-      <!-- Quick Stats Counter -->
-      <div class="flex items-center space-x-4 self-end md:self-center bg-white/80 backdrop-blur px-4 py-2 rounded-2xl shadow-sm border border-amber-200 text-center">
-        <div>
-          <div id="statPostCount" class="text-xl sm:text-2xl font-black text-amber-600">0</div>
-          <div class="text-[11px] text-slate-500 font-medium">投稿便利貼</div>
-        </div>
-        <div class="w-px h-8 bg-amber-200"></div>
-        <div>
-          <div id="statLikeCount" class="text-xl sm:text-2xl font-black text-rose-500">0</div>
-          <div class="text-[11px] text-slate-500 font-medium">獲得讚數</div>
-        </div>
-        <div class="w-px h-8 bg-amber-200"></div>
-        <div>
-          <div id="statCommentCount" class="text-xl sm:text-2xl font-black text-blue-500">0</div>
-          <div class="text-[11px] text-slate-500 font-medium">互動迴響</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Main Wall Content Container -->
-  <main id="wallContainer" class="flex-1 relative w-full p-4 sm:p-6 min-h-[70vh] bg-grid-cork transition-colors duration-300 overflow-x-hidden">
-    
-    <!-- Empty State Prompt -->
-    <div id="emptyStatePrompt" class="hidden flex flex-col items-center justify-center py-20 text-center max-w-md mx-auto">
-      <div class="w-24 h-24 rounded-full bg-amber-100/90 text-amber-500 flex items-center justify-center text-4xl mb-4 shadow-inner">
-        <i class="fa-regular fa-note-sticky"></i>
-      </div>
-      <h3 class="text-lg font-bold text-slate-700 mb-1">目前還沒有便利貼喔！</h3>
-      <p class="text-sm text-slate-500 mb-5">點擊右上角的「我要投稿」，成為興嘉第一個分享想法的小勇士吧！</p>
-      <button onclick="openPostModal()" class="px-5 py-2.5 rounded-xl bg-amber-500 text-white font-bold hover:bg-amber-600 shadow-md transition flex items-center space-x-2">
-        <i class="fa-solid fa-feather-pointed"></i>
-        <span>貼上第一張便利貼</span>
-      </button>
-    </div>
-
-    <!-- 1. Grid/Masonry Layout Container -->
-    <div id="gridBoard" class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-start">
-      <!-- Dynamic Sticky Cards injected here -->
-    </div>
-
-    <!-- 2. Free Canvas Drag Area Container (Active when mode is 'free') -->
-    <div id="freeBoard" class="hidden relative w-full h-[1500px] border-2 border-dashed border-amber-300/60 rounded-3xl overflow-hidden">
-      <!-- Dynamic Draggable Sticky Cards injected here -->
-    </div>
-  </main>
-
-  <!-- Floating Quick Add Button (For mobile friendly thumb access) -->
-  <button onclick="openPostModal()" class="fixed bottom-6 right-6 z-30 w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-xl hover:shadow-2xl flex items-center justify-center text-2xl transition hover:scale-105 active:scale-95 focus:outline-none">
-    <i class="fa-solid fa-plus"></i>
-  </button>
-
-  <!-- Modal: Student Submission Dialog -->
-  <div id="postModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-100 transform transition-all my-auto max-h-[95vh] flex flex-col">
-      
-      <!-- Modal Header -->
-      <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 text-white flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-          <i class="fa-solid fa-envelope-open-text text-xl"></i>
-          <h3 class="font-bold text-lg">我要投稿到留言牆</h3>
-        </div>
-        <button onclick="closePostModal()" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <!-- Submission Form Body -->
-      <form id="submissionForm" onsubmit="handlePostSubmit(event)" class="p-6 space-y-4 overflow-y-auto flex-1 text-sm">
-        
-        <!-- Author info row -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">班級 / 年段 <span class="text-rose-500">*</span></label>
-            <input type="text" id="postClass" required placeholder="例如：六年三班 / 502" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50 focus:bg-white transition">
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">姓名 / 座號 <span class="text-rose-500">*</span></label>
-            <input type="text" id="postAuthor" required placeholder="例如：王小明 15號" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50 focus:bg-white transition">
-          </div>
-        </div>
-
-        <!-- Optional Anonymous Toggle -->
-        <div class="flex items-center space-x-2">
-          <input type="checkbox" id="postAnonymous" class="rounded text-amber-500 focus:ring-amber-400">
-          <label for="postAnonymous" class="text-xs text-slate-600 font-medium cursor-pointer">以匿名方式發表（僅老師後台可查閱作者姓名）</label>
-        </div>
-
-        <!-- Sticky Note Color Picker -->
-        <div>
-          <label class="block font-bold text-slate-700 mb-1.5">選擇便利貼顏色</label>
-          <div class="flex items-center space-x-3">
-            <label class="cursor-pointer">
-              <input type="radio" name="noteColor" value="yellow" checked class="sr-only peer">
-              <span class="w-7 h-7 rounded-full bg-yellow-200 block border-2 border-transparent peer-checked:border-amber-600 peer-checked:scale-110 shadow-sm transition"></span>
-            </label>
-            <label class="cursor-pointer">
-              <input type="radio" name="noteColor" value="pink" class="sr-only peer">
-              <span class="w-7 h-7 rounded-full bg-rose-200 block border-2 border-transparent peer-checked:border-rose-600 peer-checked:scale-110 shadow-sm transition"></span>
-            </label>
-            <label class="cursor-pointer">
-              <input type="radio" name="noteColor" value="blue" class="sr-only peer">
-              <span class="w-7 h-7 rounded-full bg-sky-200 block border-2 border-transparent peer-checked:border-sky-600 peer-checked:scale-110 shadow-sm transition"></span>
-            </label>
-            <label class="cursor-pointer">
-              <input type="radio" name="noteColor" value="green" class="sr-only peer">
-              <span class="w-7 h-7 rounded-full bg-emerald-200 block border-2 border-transparent peer-checked:border-emerald-600 peer-checked:scale-110 shadow-sm transition"></span>
-            </label>
-            <label class="cursor-pointer">
-              <input type="radio" name="noteColor" value="purple" class="sr-only peer">
-              <span class="w-7 h-7 rounded-full bg-purple-200 block border-2 border-transparent peer-checked:border-purple-600 peer-checked:scale-110 shadow-sm transition"></span>
-            </label>
-            <label class="cursor-pointer">
-              <input type="radio" name="noteColor" value="orange" class="sr-only peer">
-              <span class="w-7 h-7 rounded-full bg-orange-200 block border-2 border-transparent peer-checked:border-orange-600 peer-checked:scale-110 shadow-sm transition"></span>
-            </label>
-          </div>
-        </div>
-
-        <!-- Post Title -->
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">標題 / 主題 <span class="text-rose-500">*</span></label>
-          <input type="text" id="postTitle" required placeholder="例如：推薦《小王子》中我最感動的話" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50 focus:bg-white transition">
-        </div>
-
-        <!-- Content & Emoji bar -->
-        <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="block font-bold text-slate-700">心得或內容 <span class="text-rose-500">*</span></label>
-            <div class="flex space-x-1 text-base">
-              <button type="button" onclick="insertEmoji('🌸')" title="花朵" class="hover:scale-125 transition">🌸</button>
-              <button type="button" onclick="insertEmoji('💐')" title="花束" class="hover:scale-125 transition">💐</button>
-              <button type="button" onclick="insertEmoji('❤️')" title="愛心" class="hover:scale-125 transition">❤️</button>
-              <button type="button" onclick="insertEmoji('🍎')" title="蘋果敬師" class="hover:scale-125 transition">🍎</button>
-              <button type="button" onclick="insertEmoji('🔥')" title="加油熱血" class="hover:scale-125 transition">🔥</button>
-              <button type="button" onclick="insertEmoji('🎁')" title="禮物" class="hover:scale-125 transition">🎁</button>
-              <button type="button" onclick="insertEmoji('🌟')" title="星星" class="hover:scale-125 transition">🌟</button>
-              <button type="button" onclick="insertEmoji('🎓')" title="畢業帽" class="hover:scale-125 transition">🎓</button>
-            </div>
-          </div>
-
-          <div id="sentenceStartersRow" class="flex flex-wrap items-center gap-1.5 mb-2">
-            <span class="text-[11px] text-amber-700 font-bold flex items-center mr-1">
-              <i class="fa-solid fa-wand-magic-sparkles mr-1 text-amber-500"></i>開頭靈感：
-            </span>
-            <!-- Dynamically populated by JS according to active theme -->
-          </div>
-
-          <textarea id="postContent" required rows="4" placeholder="在此寫下你的想法、感謝或祝福..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50 focus:bg-white transition"></textarea>
-  <!-- Modal: Presets Selection (10 Xing-Jia Universal Festivals & Scenarios) -->
-  <div id="presetsModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-100">
-      <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-amber-50 to-orange-50">
-        <div>
-          <h3 class="font-black text-lg text-amber-950 flex items-center">
-            <i class="fa-solid fa-palette mr-2 text-amber-600"></i>興嘉國小 萬用主題與節慶範本庫
-          </h3>
-          <p class="text-xs text-slate-600 mt-0.5">點選即可一鍵更換全牆背景、引導說明與學生開頭靈感句型！</p>
-        </div>
-        <button onclick="closePresetsModal()" class="w-8 h-8 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center text-slate-600 text-lg transition">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <div class="p-6 overflow-y-auto space-y-6 max-h-[75vh]">
-        
-        <!-- Section 1: Major Festivals & School Events -->
-        <div>
-          <div class="flex items-center space-x-2 mb-3">
-            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-            <h4 class="font-black text-slate-800 text-sm tracking-wide uppercase">萬用節慶與重大校園活動</h4>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            
-            <!-- Festival 1: Teacher's Day -->
-            <div onclick="applyPreset(0)" class="p-4 rounded-2xl border-2 border-amber-200 hover:border-amber-500 bg-amber-50/70 hover:bg-amber-100/70 cursor-pointer transition shadow-xs hover:shadow-md flex items-start space-x-3 group">
-              <div class="text-3xl p-2 bg-white rounded-2xl shadow-xs group-hover:scale-110 transition">🍎</div>
-              <div class="flex-1">
-                <div class="flex items-center space-x-1.5 mb-1">
-                  <span class="text-[10px] px-2 py-0.5 bg-amber-200 text-amber-900 font-black rounded-full">節慶活動</span>
-                  <h5 class="font-bold text-slate-900 text-sm">教師節：敬師感恩卡片牆</h5>
-                </div>
-                <p class="text-xs text-slate-600 leading-relaxed">暖心金杏色背景，附敬師名句與感謝卡投稿引導。</p>
-              </div>
-            </div>
-
-            <!-- Festival 2: Mother's Day -->
-            <div onclick="applyPreset(1)" class="p-4 rounded-2xl border-2 border-rose-200 hover:border-rose-500 bg-rose-50/70 hover:bg-rose-100/70 cursor-pointer transition shadow-xs hover:shadow-md flex items-start space-x-3 group">
-              <div class="text-3xl p-2 bg-white rounded-2xl shadow-xs group-hover:scale-110 transition">💐</div>
-              <div class="flex-1">
-                <div class="flex items-center space-x-1.5 mb-1">
-                  <span class="text-[10px] px-2 py-0.5 bg-rose-200 text-rose-900 font-black rounded-full">感恩活動</span>
-                  <h5 class="font-bold text-slate-900 text-sm">母親節：給家人的感恩悄悄話</h5>
-                </div>
-                <p class="text-xs text-slate-600 leading-relaxed">溫馨康乃馨粉紅底紋，手作花束與感恩合照分享。</p>
-              </div>
-            </div>
-
-            <!-- Festival 3: Sports Day -->
-            <div onclick="applyPreset(2)" class="p-4 rounded-2xl border-2 border-orange-200 hover:border-orange-500 bg-orange-50/70 hover:bg-orange-100/70 cursor-pointer transition shadow-xs hover:shadow-md flex items-start space-x-3 group">
-              <div class="text-3xl p-2 bg-white rounded-2xl shadow-xs group-hover:scale-110 transition">🔥</div>
-              <div class="flex-1">
-                <div class="flex items-center space-x-1.5 mb-1">
-                  <span class="text-[10px] px-2 py-0.5 bg-orange-200 text-orange-900 font-black rounded-full">校園盛事</span>
-                  <h5 class="font-bold text-slate-900 text-sm">校慶運動會：班級應援加油牆</h5>
-                </div>
-                <p class="text-xs text-slate-600 leading-relaxed">熱血活力橘紅底紋，大隊接力、進場班呼與精彩瞬間集氣。</p>
-              </div>
-            </div>
-
-            <!-- Festival 4: Graduation -->
-            <div onclick="applyPreset(3)" class="p-4 rounded-2xl border-2 border-sky-200 hover:border-sky-500 bg-sky-50/70 hover:bg-sky-100/70 cursor-pointer transition shadow-xs hover:shadow-md flex items-start space-x-3 group">
-              <div class="text-3xl p-2 bg-white rounded-2xl shadow-xs group-hover:scale-110 transition">🎓</div>
-              <div class="flex-1">
-                <div class="flex items-center space-x-1.5 mb-1">
-                  <span class="text-[10px] px-2 py-0.5 bg-sky-200 text-sky-900 font-black rounded-full">青春啟航</span>
-                  <h5 class="font-bold text-slate-900 text-sm">畢業季：給未來的我們與祝福</h5>
-                </div>
-                <p class="text-xs text-slate-600 leading-relaxed">晴空藍漸層底紋，六年級畢業感言、時空膠囊與學弟妹祝福。</p>
-              </div>
-            </div>
-
-            <!-- Festival 5: New Year & Xmas -->
-            <div onclick="applyPreset(4)" class="p-4 rounded-2xl border-2 border-teal-200 hover:border-teal-500 bg-teal-50/70 hover:bg-teal-100/70 cursor-pointer transition shadow-xs hover:shadow-md flex items-start space-x-3 group sm:col-span-2">
-              <div class="text-3xl p-2 bg-white rounded-2xl shadow-xs group-hover:scale-110 transition">🎄</div>
-              <div class="flex-1">
-                <div class="flex items-center space-x-1.5 mb-1">
-                  <span class="text-[10px] px-2 py-0.5 bg-teal-200 text-teal-900 font-black rounded-full">歲末新願</span>
-                  <h5 class="font-bold text-slate-900 text-sm">歲末祈願：新年新希望許願牆</h5>
-                </div>
-                <p class="text-xs text-slate-600 leading-relaxed">冬日雪花白風格，寫下新學期目標、許願便利貼與自我期許。</p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Section 2: Daily Teaching & Curriculum Scenarios -->
-        <div>
-          <div class="flex items-center space-x-2 mb-3">
-            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-            <h4 class="font-black text-slate-800 text-sm tracking-wide uppercase">日常教學、閱讀與校本課程</h4>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            
-            <!-- Preset 6: Morning Reading -->
-            <div onclick="applyPreset(5)" class="p-4 rounded-2xl border-2 border-amber-200 hover:border-amber-500 bg-amber-50/50 hover:bg-amber-100/60 cursor-pointer transition shadow-xs hover:shadow-md flex items-start space-x-3 group">
-              <div class="text-3xl p-2 bg-white rounded-2xl shadow-xs group-hover:scale-110 transition">📖</div>
-              <div class="flex-1">
-                <div class="flex items-center space-x-1.5 mb-1">
-                  <span class="text-[10px] px-2 py-0.5 bg-amber-200 text-amber-900 font-black rounded-full">閱讀推廣</span>
-                  <h5 class="font-bold text-slate-900 text-sm">晨讀心得與好書推薦牆</h5>
-                </div>
-                <p class="text-xs text-slate-600 leading-relaxed">經典手作軟木塞風格，早自習摘句分享與推薦讀後感。</p>
-              </div>
-            </div>
-
-            <!-- Preset 7: Exit Ticket -->
-            <div onclick="applyPreset(6)" class="p-4 rounded-2xl border-2 border-emerald-200 hover:border-emerald-500 bg-emerald-50/50 hover:bg-emerald-100/60 cursor-pointer transition shadow-xs hover:shadow-md flex items-start space-x-3 group">
-              <div class="text-3xl p-2 bg-white rounded-2xl shadow-xs group-hover:scale-110 transition">⚡</div>
-              <div class="flex-1">
-                <div class="flex items-center space-x-1.5 mb-1">
-                  <span class="text-[10px] px-2 py-0.5 bg-emerald-200 text-emerald-900 font-black rounded-full">課堂診斷</span>
-                  <h5 class="font-bold text-slate-900 text-sm">課堂即時回饋 Exit Ticket</h5>
-                </div>
-                <p class="text-xs text-slate-600 leading-relaxed">綠色黑板教室風格，下課前一分鐘回饋學到的核心與提問。</p>
-              </div>
-            </div>
-
-            <!-- Preset 8: Bilingual / English -->
-            <div onclick="applyPreset(7)" class="p-4 rounded-2xl border-2 border-purple-200 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-100/60 cursor-pointer transition shadow-xs hover:shadow-md flex items-start space-x-3 group">
-              <div class="text-3xl p-2 bg-white rounded-2xl shadow-xs group-hover:scale-110 transition">🗣️</div>
-              <div class="flex-1">
-                <div class="flex items-center space-x-1.5 mb-1">
-                  <span class="text-[10px] px-2 py-0.5 bg-purple-200 text-purple-900 font-black rounded-full">雙語教學</span>
-                  <h5 class="font-bold text-slate-900 text-sm">雙語英語口說與影音任務</h5>
-                </div>
-                <p class="text-xs text-slate-600 leading-relaxed">科技圓點底紋，錄音雲端連結、YouTube 口說影音上傳分享。</p>
-              </div>
-            </div>
-
-            <!-- Preset 9: School Curriculum -->
-            <div onclick="applyPreset(8)" class="p-4 rounded-2xl border-2 border-lime-200 hover:border-lime-500 bg-lime-50/50 hover:bg-lime-100/60 cursor-pointer transition shadow-xs hover:shadow-md flex items-start space-x-3 group">
-              <div class="text-3xl p-2 bg-white rounded-2xl shadow-xs group-hover:scale-110 transition">🌱</div>
-              <div class="flex-1">
-                <div class="flex items-center space-x-1.5 mb-1">
-                  <span class="text-[10px] px-2 py-0.5 bg-lime-200 text-lime-900 font-black rounded-full">校本課程</span>
-                  <h5 class="font-bold text-slate-900 text-sm">校訂走讀：道將圳與生態池踏查</h5>
-                </div>
-                <p class="text-xs text-slate-600 leading-relaxed">興嘉生態池鳥類植物照片發表與社區文化踏查心得。</p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Footer action to customize manually -->
-      <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <span class="text-slate-500">想要自行設定特定的標題名稱或背景？</span>
-        <button onclick="closePresetsModal(); openWallSettingsModal();" class="px-4 py-2 rounded-xl bg-white border border-slate-300 hover:border-amber-500 font-bold text-slate-700 hover:text-amber-600 transition flex items-center space-x-1 shadow-xs">
-          <i class="fa-solid fa-pen-to-square mr-1"></i>
-          <span>手動自訂主題文字與背景風格</span>
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Modal: QR Code Sharing Dialog -->
-  <div id="qrModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center border border-slate-100">
-      <h3 class="text-lg font-bold text-slate-800 mb-1">學生掃描投稿 QR Code</h3>
-      <p class="text-xs text-slate-500 mb-4">請學生用平板相機或手機掃描，立刻進入此留言牆投稿！</p>
-      
-      <!-- QR Code Canvas Display -->
-      <div class="p-4 bg-white rounded-2xl border-2 border-amber-200 inline-block shadow-sm mb-4">
-        <div id="qrcodeCanvas" class="flex justify-center"></div>
-      </div>
-      
-      <div class="flex items-center justify-center space-x-2 mb-4">
-        <input type="text" id="shareUrlInput" readonly class="text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg border border-slate-200 w-full truncate">
-        <button onclick="copyShareUrl()" class="px-3 py-1.5 rounded-lg bg-amber-500 text-white text-xs font-bold hover:bg-amber-600 transition flex items-center space-x-1 shrink-0">
-          <i class="fa-regular fa-copy"></i>
-          <span>複製</span>
-        </button>
-      </div>
-
-      <button onclick="closeQrModal()" class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition">
-        關閉
-      </button>
-    </div>
-  </div>
-
-  <!-- Modal: Wall Settings (Theme & Title) -->
-  <div id="wallSettingsModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="font-bold text-lg text-slate-800"><i class="fa-solid fa-palette text-amber-500 mr-2"></i>設定主題牆資訊</h3>
-        <button onclick="closeWallSettingsModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
-      
-      <form onsubmit="saveWallSettings(event)" class="space-y-4 text-sm">
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">主題名稱</label>
-          <input type="text" id="settingsTitle" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500">
-        </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">分類標籤</label>
-          <input type="text" id="settingsBadge" placeholder="例如：節慶感恩 / 閱讀推廣 / 運動會應援" class="w-full px-3.5 py-2 rounded-xl border border-slate-300">
-        </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">說明指引文字</label>
-          <textarea id="settingsDesc" rows="3" class="w-full px-3.5 py-2 rounded-xl border border-slate-300"></textarea>
-        </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">背景牆樣式風格</label>
-          <select id="settingsBgStyle" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 font-medium">
-            <optgroup label="萬用節慶與重大活動">
-              <option value="carnation">🌸 母親節與感恩月 (溫馨康乃馨粉)</option>
-              <option value="warm-teacher">🍎 教師節敬師感恩 (秋日金杏溫暖)</option>
-              <option value="festive-sports">🔥 校慶運動會 (活力熱血橘紅)</option>
-              <option value="graduation">🎓 畢業季與青春寄語 (青檸晴空藍)</option>
-              <option value="winter">❄️ 歲末耶誕與新年新希望 (冬日雪花白)</option>
-            </optgroup>
-            <optgroup label="經典教學課堂">
-              <option value="cork">🪵 軟木塞布告欄風格 (溫馨手作)</option>
-              <option value="chalk">🟩 綠色黑板教室風格 (生動教學)</option>
-              <option value="dots">⚪ 簡約圓點網格風格 (現代科技)</option>
-              <option value="clean">📄 柔和米白純色風格 (清晰清爽)</option>
-            </optgroup>
-          </select>
-        </div>
-
-        <div class="pt-2 flex justify-end space-x-2">
-          <button type="button" onclick="closeWallSettingsModal()" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100">取消</button>
-          <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold">儲存設定</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal: Teacher Moderation Queue -->
-  <div id="moderationModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-100">
-      <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-amber-50">
-        <div>
-          <h3 class="font-bold text-lg text-amber-900"><i class="fa-solid fa-shield-halved mr-2 text-amber-600"></i>學生投稿審核箱</h3>
-          <p class="text-xs text-slate-500">審核通過後的卡片將立即公開展示於留言牆上</p>
-        </div>
-        <button onclick="closeModerationModal()" class="text-slate-400 hover:text-slate-600 text-lg">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <div id="moderationQueueList" class="p-6 space-y-3 overflow-y-auto max-h-[70vh]">
-        <!-- Populated dynamically by openModerationModal() -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Google Apps Script / Google Sheets Cloud Sync Guide -->
-  <div id="gasModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-100 text-sm">
-      <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-indigo-50">
-        <div>
-          <h3 class="font-bold text-lg text-indigo-900"><i class="fa-solid fa-cloud-arrow-up mr-2 text-indigo-600"></i>Google 試算表 (GAS) 雲端連線設定</h3>
-          <p class="text-xs text-slate-500">免伺服器！直接將學生投稿即時同步至 Google 試算表，支援跨裝置互動</p>
-        </div>
-        <button onclick="closeGasModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
-
-      <div class="p-6 overflow-y-auto space-y-4">
-        <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 space-y-2 text-xs text-indigo-900">
-          <div class="font-bold flex items-center gap-1.5 text-sm text-indigo-950">
-            <i class="fa-solid fa-circle-question text-indigo-600"></i> 如何在 3 分鐘內完成 Google 試算表連線？
-          </div>
-          <ol class="list-decimal list-inside space-y-1 text-slate-700">
-            <li>在 Google 雲端硬碟建立一個新的「Google 試算表」。</li>
-            <li>點擊上方選單的 <strong>擴充功能 > Apps Script</strong>。</li>
-            <li>將專案中的 <code>Code.gs</code> 內容複製貼上進去並存檔。</li>
-            <li>點擊右上角 <strong>「部署」 > 「新增部署作業」</strong>。</li>
-            <li>種類選擇 <strong>「網路應用程式」 (Web App)</strong>。</li>
-            <li><strong>誰可以存取 (Who has access)</strong> 務必選擇：<strong>「所有人」 (Anyone)</strong>。</li>
-            <li>複製生成的<strong>網路應用程式網址 (結尾為 /exec)</strong> 並貼入下方欄位！</li>
-          </ol>
-        </div>
-
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Google Apps Script 網路應用程式 URL (Web App URL)</label>
-          <input type="url" id="gasEndpointInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 text-xs font-mono">
-          <p class="text-[11px] text-slate-500 mt-1">填入您的部署網址後，學生手機或平板投稿時將會即時發送到 Google 試算表！</p>
-        </div>
-
-        <div class="flex items-center justify-between pt-2">
-          <button onclick="syncToGoogleSheets()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center space-x-1.5 shadow">
-            <i class="fa-solid fa-cloud-arrow-up"></i>
-            <span>全量上傳現有卡片至試算表</span>
-          </button>
-          <div class="flex space-x-2">
-            <button onclick="fetchCloudData(true)" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
-              <i class="fa-solid fa-cloud-arrow-down mr-1"></i>測試拉取雲端
-            </button>
-            <button onclick="saveGasSettings()" class="px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-700">
-              儲存網址設定
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Custom Confirmation Dialog (Replaces native confirm) -->
-  <div id="customConfirmModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center border border-slate-100">
-      <div id="confirmIconBox" class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl mx-auto mb-3">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-      </div>
-      <h3 id="confirmTitle" class="text-base font-bold text-slate-800 mb-1">確認執行操作？</h3>
-      <p id="confirmMessage" class="text-xs text-slate-500 mb-5">此動作執行後將無法復原，請再次確認。</p>
-      <div class="flex space-x-2">
-        <button onclick="closeConfirmModal(false)" class="w-1/2 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">取消</button>
-        <button id="confirmConfirmBtn" onclick="closeConfirmModal(true)" class="w-1/2 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition">確認</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Custom Toast Notification -->
-  <div id="toastNotification" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-slate-800/95 text-white px-5 py-2.5 rounded-2xl shadow-xl flex items-center space-x-2.5 text-xs font-medium transform transition-all duration-300 opacity-0 pointer-events-none translate-y-3">
-    <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
-    <span id="toastMsg">操作成功</span>
-  </div>
-
-  <script>
-    // 興嘉國小 萬用節慶與多元情境資料庫
-    const XINGJIA_PRESETS = [
-      {
-        title: "教師節敬師感恩卡片牆 🍎",
-        badge: "敬師感恩",
-        description: "「老師您辛苦了！」寫下最想對老師說的心裡話、一張難忘回憶的照片，為興嘉老師獻上最暖心的祝福！",
-        bgStyle: "warm-teacher",
-        starters: ["親愛的老師：謝謝您平時...", "我最喜歡老師上課時...", "想對老師說一句：...", "祝老師教師節快樂！"]
-      },
-      {
-        title: "母親節：給家人的溫馨悄悄話 💐",
-        badge: "感恩有您",
-        description: "媽媽與家人每天默默守護著我們。請寫下一句感謝的話，或拍下為媽媽分擔家事、手作康乃馨的照片喔！",
-        bgStyle: "carnation",
-        starters: ["親愛的媽媽：謝謝您總是...", "今天我想為家人做一件事：...", "我最喜歡吃媽媽煮的...", "媽媽您辛苦了，我愛您！"]
-      },
-      {
-        title: "校慶運動會：班級集氣加油牆 🔥",
-        badge: "校慶應援",
-        description: "活力興嘉，健康前行！為班級運動員喝采、寫下熱血班呼，一起為大隊接力和各項競賽加油集氣！",
-        bgStyle: "festive-sports",
-        starters: ["為我們班加油！必勝口號是：...", "想對選手們說：全力以赴...", "今天最精彩的瞬間是...", "興嘉健兒棒棒棒！"]
-      },
-      {
-        title: "畢業季：致未來的我們與祝福 🎓",
-        badge: "青春啟航",
-        description: "在興嘉度過美好的國小歲月，將展翅高飛！留下一句給同學的祝福、對國中生活的期許，或是珍貴回憶！",
-        bgStyle: "graduation",
-        starters: ["在興嘉最難忘的回憶是...", "給未來的自己一句話：...", "祝福我的好朋友：...", "珍重再見，我們頂峰相見！"]
-      },
-      {
-        title: "歲末祈願：新年新希望許願牆 🎄",
-        badge: "歲末新願",
-        description: "告別今年、迎接嶄新的一年！在便利貼寫下新的一年最想實現的 3 個願望與好習慣，大家一起互相勉勵！",
-        bgStyle: "winter",
-        starters: ["今年我最感謝的是...", "新的一年我的目標是：...", "我希望學會的一項新能力：...", "祝大家新年快樂！"]
-      },
-      {
-        title: "晨讀心得與好書推薦牆 📖",
-        badge: "閱讀推廣",
-        description: "晨讀十分鐘，遇見全世界！請分享你今天早自習讀到的感動佳句或好書心得喔！",
-        bgStyle: "cork",
-        starters: ["這本書最感動我的一句話：...", "這本書的主角讓我學到...", "推薦這本書的理由是：...", "閱讀完我的心得是..."]
-      },
-      {
-        title: "課堂即時回饋 Exit Ticket ⚡",
-        badge: "課堂診斷",
-        description: "下課前請寫下：1. 今天學會最重要的觀念 2. 我還想進一步了解的一點疑惑。",
-        bgStyle: "chalk",
-        starters: ["今天這堂課我學會了...", "我想向全班提出一個問題：...", "最重要的重點是...", "我覺得最有趣的部分是..."]
-      },
-      {
-        title: "雙語英語口說與影音任務 🗣️",
-        badge: "Bilingual",
-        description: "Share your thoughts or paste your video recording link to complete the English challenge!",
-        bgStyle: "dots",
-        starters: ["My favorite thing is...", "Today I want to share that...", "Hello everyone, my name is...", "Have a great day!"]
-      },
-      {
-        title: "校訂課程：興嘉道將圳與生態池踏查 🌱",
-        badge: "校本課程",
-        description: "記錄今天在校園生態池與社區走讀拍到的動植物，寫下你的在地環境觀察與發現！",
-        bgStyle: "cork",
-        starters: ["在生態池我觀察到了...", "道將圳的水質與環境：...", "我拍到的這張照片是...", "希望大家一起保護環境..."]
-      },
-      {
-        title: "自訂主題互動牆面 🎨",
-        badge: "活動分享",
-        description: "歡迎大家貼上便利貼，寫下想法、上傳照片，一同熱烈交流！",
-        bgStyle: "clean",
-        starters: ["我想分享的是...", "關於這個主題，我覺得...", "給全班的一個建議：..."]
-      }
-    ];
-
-    // Local Storage Keys
-    const STORAGE_KEY_POSTS = "xingjia_eduwall_posts";
-    const STORAGE_KEY_SETTINGS = "xingjia_eduwall_settings";
-    const STORAGE_KEY_MODERATION = "xingjia_eduwall_pending";
-    const STORAGE_KEY_GAS = "xingjia_eduwall_gas_url";
-
-    // 預設的 Google Apps Script (GAS) 雲端資料庫連線網址
-    const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycby4qr-hd5bA_rsg0MU5qvXk1cGXcYS2HK_yh5G_kqNIS7ODQooUc12sA--dqbxDsBI4/exec";
-
-    // Application Global State
-    let wallSettings = {
-      title: "教師節敬師感恩卡片牆 🍎",
-      badge: "敬師感恩",
-      description: "「老師您辛苦了！」寫下最想對老師說的心裡話、一張難忘回憶的照片，為興嘉老師獻上最暖心的祝福！",
-      bgStyle: "warm-teacher",
-      isLocked: false,
-      requireModeration: false,
-      hideStudentNames: false
-    };
-
-    let posts = [];
-    let pendingPosts = [];
-    let isTeacherMode = false;
-    let viewMode = 'grid'; // 'grid' or 'free'
-    let currentImageBase64 = "";
-    let confirmCallback = null;
-
-    window.addEventListener("DOMContentLoaded", () => {
-      // 確保系統載入時預設帶入您的 GAS 網址
-      let savedGas = localStorage.getItem(STORAGE_KEY_GAS);
-      if (!savedGas) {
-        savedGas = DEFAULT_GAS_URL;
-        localStorage.setItem(STORAGE_KEY_GAS, savedGas);
-      }
-
-      loadSettings();
-      loadPosts();
-      applyWallSettingsToUI();
-      renderWall();
-      renderStats();
-      generateQrCode();
-      
-      document.getElementById("wallLastUpdated").textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-      // 自動從 Google 試算表同步最新資料
-      if (savedGas) {
-        fetchCloudData(false);
-      }
-    });
-
-    function loadSettings() {
-      const saved = localStorage.getItem(STORAGE_KEY_SETTINGS);
-      if (saved) {
-        try {
-          wallSettings = { ...wallSettings, ...JSON.parse(saved) };
-        } catch(e) {}
-      }
-    }
-
-    function saveSettings() {
-      localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(wallSettings));
-      applyWallSettingsToUI();
-      updateAdminBarUI();
-    }
-
-    function loadPosts() {
-      const savedPosts = localStorage.getItem(STORAGE_KEY_POSTS);
-      if (savedPosts) {
-        try { posts = JSON.parse(savedPosts); } catch(e) { posts = []; }
-      }
-      const savedPending = localStorage.getItem(STORAGE_KEY_MODERATION);
-      if (savedPending) {
-        try { pendingPosts = JSON.parse(savedPending); } catch(e) { pendingPosts = []; }
-      }
-    }
-
-    function applyWallSettingsToUI() {
-      document.getElementById("wallTitleDisplay").querySelector("span").textContent = wallSettings.title;
-      document.getElementById("wallBadge").textContent = wallSettings.badge || "興嘉活動";
-      document.getElementById("wallDescriptionDisplay").textContent = wallSettings.description;
-
-      const container = document.getElementById("wallContainer");
-      // Remove all bg style classes
-      container.classList.remove(
-        "bg-grid-cork", "bg-grid-dots", "bg-chalkboard",
-        "bg-carnation-pink", "bg-warm-teacher", "bg-festive-sports",
-        "bg-graduation-sky", "bg-winter-festive", "bg-white"
-      );
-
-      // Add selected style class
-      switch (wallSettings.bgStyle) {
-        case "carnation":
-          container.classList.add("bg-carnation-pink");
-          break;
-        case "warm-teacher":
-          container.classList.add("bg-warm-teacher");
-          break;
-        case "festive-sports":
-          container.classList.add("bg-festive-sports");
-          break;
-        case "graduation":
-          container.classList.add("bg-graduation-sky");
-          break;
-        case "winter":
-          container.classList.add("bg-winter-festive");
-          break;
-        case "chalk":
-          container.classList.add("bg-chalkboard");
-          break;
-        case "dots":
-          container.classList.add("bg-grid-dots");
-          break;
-        case "clean":
-          container.classList.add("bg-white");
-          break;
-        case "cork":
-        default:
-          container.classList.add("bg-grid-cork");
-          break;
-      }
-    }
-
-    function openPostModal() {
-      if (wallSettings.isLocked && !isTeacherMode) {
-        showToast("目前教師已關閉投稿功能！", "warning");
-        return;
-      }
-      document.getElementById("submissionForm").reset();
-      currentImageBase64 = "";
-      document.getElementById("imagePreviewBox").classList.add("hidden");
-
-      // Generate sentence starters based on current theme/preset
-      renderSentenceStarters();
-
-      document.getElementById("postModal").classList.remove("hidden");
-    }
-
-    function renderSentenceStarters() {
-      const container = document.getElementById("sentenceStartersRow");
-      if (!container) return;
-
-      // Find matching preset starters or fallback
-      let starters = ["我想分享的是...", "我覺得最棒的是...", "給全班的一句話：..."];
-      const matched = XINGJIA_PRESETS.find(p => p.bgStyle === wallSettings.bgStyle || wallSettings.title.includes(p.title.slice(0, 3)));
-      if (matched && matched.starters) {
-        starters = matched.starters;
-      }
-
-      container.innerHTML = `
-        <span class="text-[11px] text-amber-800 font-bold flex items-center mr-1">
-          <i class="fa-solid fa-wand-magic-sparkles mr-1 text-amber-500"></i>開頭靈感：
-        </span>
-        ${starters.map(text => `
-          <button type="button" onclick="insertSentenceStarter('${escapeHTML(text)}')" class="px-2 py-0.5 rounded-full text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 transition active:scale-95">
-            ${escapeHTML(text)}
-          </button>
-        `).join("")}
-      `;
-    }
-
-    function insertSentenceStarter(text) {
-      const textarea = document.getElementById("postContent");
-      if (!textarea.value.trim()) {
-        textarea.value = text + " ";
-      } else {
-        textarea.value += "\n" + text + " ";
-      }
-      textarea.focus();
-    }
-
-    function applyPreset(index) {
-      const p = XINGJIA_PRESETS[index];
-      if (p) {
-        wallSettings.title = p.title;
-        wallSettings.badge = p.badge;
-        wallSettings.description = p.description;
-        wallSettings.bgStyle = p.bgStyle;
-        saveSettings();
-        closePresetsModal();
-        showToast(`已成功套用「${p.title}」主題範本！`, "success");
-      }
-    }
-
-    function savePosts() {
-      localStorage.setItem(STORAGE_KEY_POSTS, JSON.stringify(posts));
-      localStorage.setItem(STORAGE_KEY_MODERATION, JSON.stringify(pendingPosts));
-      renderStats();
-    }
-
-    function renderWall() {
-      const gridBoard = document.getElementById("gridBoard");
-      const freeBoard = document.getElementById("freeBoard");
-      const emptyPrompt = document.getElementById("emptyStatePrompt");
-
-      // Sort: pinned first, then newest
-      const displayPosts = [...posts].sort((a, b) => {
-        if (a.isPinned && !b.isPinned) return -1;
-        if (!a.isPinned && b.isPinned) return 1;
-        return 0;
-      });
-
-      if (displayPosts.length === 0) {
-        gridBoard.innerHTML = "";
-        freeBoard.innerHTML = "";
-        emptyPrompt.classList.remove("hidden");
-        return;
-      } else {
-        emptyPrompt.classList.add("hidden");
-      }
-
-      // Render Grid view
-      gridBoard.innerHTML = displayPosts.map(post => createCardHTML(post, false)).join("");
-
-      // Render Free view
-      freeBoard.innerHTML = displayPosts.map(post => createCardHTML(post, true)).join("");
-
-      // Initialize draggable events on free cards
-      if (viewMode === 'free') {
-        setupCardDragging();
-      }
-    }
-
-    function createCardHTML(post, isFreeLayout) {
-      // Name display logic
-      let authorDisplay = post.author;
-      if (wallSettings.hideStudentNames && !isTeacherMode) {
-        authorDisplay = post.author ? post.author.charAt(0) + "〇" + (post.author.length > 2 ? post.author.slice(2) : "") : "同學";
-      } else if (post.isAnonymous && !isTeacherMode) {
-        authorDisplay = "匿名同學";
-      }
-
-      // Youtube Video Embed logic
-      let youtubeEmbedHTML = "";
-      if (post.youtubeUrl) {
-        const videoId = extractYouTubeID(post.youtubeUrl);
-        if (videoId) {
-          youtubeEmbedHTML = `
-            <div class="mt-2.5 rounded-xl overflow-hidden aspect-video bg-black/10">
-              <iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
-          `;
-        }
-      }
-
-      // Image HTML
-      let imageHTML = "";
-      if (post.imageUrl) {
-        imageHTML = `
-          <div class="mt-2.5 rounded-xl overflow-hidden max-h-52 bg-slate-100 border border-black/5">
-            <img src="${post.imageUrl}" alt="附圖" onerror="this.src='https://placehold.co/600x400/ffe4e6/9f1239?text=照片無法顯示'" class="w-full h-auto object-cover hover:scale-105 transition duration-300">
-          </div>
-        `;
-      }
-
-      // Link HTML
-      let linkHTML = "";
-      if (post.linkUrl) {
-        linkHTML = `
-          <a href="${post.linkUrl}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center text-xs font-semibold text-blue-700 bg-blue-50/90 hover:bg-blue-100 px-2.5 py-1 rounded-lg border border-blue-200 transition">
-            <i class="fa-solid fa-up-right-from-square mr-1"></i>參考連結
-          </a>
-        `;
-      }
-
-      // Comments list HTML
-      const commentsListHTML = (post.comments || []).map(c => `
-        <div class="bg-white/80 p-2 rounded-lg text-xs space-y-0.5 border border-black/5">
-          <div class="flex justify-between font-bold text-slate-700">
-            <span>${escapeHTML(c.author)}</span>
-            <span class="text-[10px] text-slate-400 font-normal">${c.time || ''}</span>
-          </div>
-          <p class="text-slate-600">${escapeHTML(c.text)}</p>
-        </div>
-      `).join("");
-
-      // Position style for Free layout
-      const stylePosition = isFreeLayout 
-        ? `style="position: absolute; left: ${post.posX || 30}px; top: ${post.posY || 40}px; width: 310px; z-index: 10;"` 
-        : ``;
-
-      return `
-        <div id="card-${post.id}" data-id="${post.id}" ${stylePosition} class="note-${post.color || 'yellow'} ${isFreeLayout ? 'card-draggable absolute' : 'w-full'} relative rounded-2xl p-4 shadow-md hover:shadow-xl transition-all duration-200 flex flex-col justify-between">
-          
-          <!-- Cute Tape Effect -->
-          <div class="washi-tape"></div>
-
-          <!-- Card Header -->
-          <div>
-            <div class="flex items-start justify-between gap-1 mb-2">
-              <div class="flex flex-wrap items-center gap-1">
-                ${post.isPinned ? `<span class="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center shadow-xs"><i class="fa-solid fa-thumbtack mr-1"></i>置頂</span>` : ''}
-                ${post.isFeatured ? `<span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center shadow-xs"><i class="fa-solid fa-star mr-1"></i>精選</span>` : ''}
-                <span class="text-xs font-bold text-slate-700 bg-white/70 px-2 py-0.5 rounded-full border border-black/5">${escapeHTML(post.className || '學生')}</span>
-              </div>
-              
-              <!-- Teacher Action Controls -->
-              ${isTeacherMode ? `
-                <div class="flex items-center space-x-1">
-                  <button onclick="togglePinPost('${post.id}')" title="${post.isPinned ? '取消置頂' : '置頂此篇'}" class="p-1 rounded text-slate-600 hover:text-amber-700 text-xs">
-                    <i class="fa-solid fa-thumbtack ${post.isPinned ? 'text-rose-600' : ''}"></i>
-                  </button>
-                  <button onclick="toggleFeaturePost('${post.id}')" title="${post.isFeatured ? '取消精選' : '精選作品'}" class="p-1 rounded text-slate-600 hover:text-amber-600 text-xs">
-                    <i class="fa-solid fa-star ${post.isFeatured ? 'text-amber-500' : ''}"></i>
-                  </button>
-                  <button onclick="deletePost('${post.id}')" title="刪除此便利貼" class="p-1 rounded text-slate-500 hover:text-rose-600 text-xs">
-                    <i class="fa-solid fa-trash-can"></i>
-                  </button>
-                </div>
-              ` : `
-                <span class="text-[11px] text-slate-400 font-medium">${post.timestamp || ''}</span>
-              `}
-            </div>
-
-            <!-- Author info -->
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="font-bold text-slate-800 text-sm flex items-center">
-                <i class="fa-regular fa-circle-user mr-1 text-slate-500"></i>
-                ${escapeHTML(authorDisplay)}
-                ${post.isAnonymous && isTeacherMode ? `<span class="ml-1 text-[10px] text-amber-700 bg-amber-100 px-1 rounded">(匿名)</span>` : ''}
-              </span>
-              ${isTeacherMode ? `<span class="text-[10px] text-slate-400">${post.timestamp || ''}</span>` : ''}
-            </div>
-
-            <!-- Title & Body Text -->
-            <h4 class="font-black text-slate-900 text-base mb-1.5 leading-snug">${escapeHTML(post.title)}</h4>
-            <p class="text-slate-700 text-xs sm:text-sm whitespace-pre-line leading-relaxed mb-2 font-normal">${escapeHTML(post.content)}</p>
-
-            <!-- Media Embeds -->
-            ${imageHTML}
-            ${youtubeEmbedHTML}
-            ${linkHTML}
-          </div>
-
-          <!-- Card Footer & Interactions -->
-          <div class="mt-4 pt-3 border-t border-black/10">
-            <div class="flex items-center justify-between text-xs">
-              
-              <!-- Like & Claps -->
-              <div class="flex items-center space-x-2">
-                <button onclick="likePost('${post.id}')" class="flex items-center space-x-1 px-2.5 py-1 rounded-full bg-white/70 hover:bg-white text-rose-600 font-bold transition shadow-xs active:scale-90">
-                  <i class="fa-solid fa-heart text-rose-500"></i>
-                  <span>${post.likes || 0}</span>
+<body class="min-h-screen bg-gray-100 transition-colors duration-500" id="bodyBg">
+
+    <!-- 頂部導覽列 -->
+    <header class="bg-white/90 backdrop-blur shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <h1 class="text-xl font-bold text-gray-800 cursor-pointer" onclick="openThemeModal()">
+                <i class="fa-solid fa-chalkboard-user mr-2 text-blue-500"></i>
+                <span id="headerTitle">興嘉國小 晨讀心得牆</span>
+            </h1>
+            <div class="flex gap-2">
+                <button onclick="syncWithCloud()" class="bg-green-100 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-200 transition">
+                    <i class="fa-solid fa-rotate mr-1"></i>同步
                 </button>
-                <button onclick="clapPost('${post.id}')" class="flex items-center space-x-1 px-2.5 py-1 rounded-full bg-white/70 hover:bg-white text-amber-700 font-bold transition shadow-xs active:scale-90" title="拍手鼓掌">
-                  <span class="text-xs">👏</span>
-                  <span>${post.claps || 0}</span>
+                <button onclick="openThemeModal()" class="bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-200 transition">
+                    <i class="fa-solid fa-palette mr-1"></i>主題
                 </button>
-              </div>
-
-              <!-- Comments count toggler -->
-              <button onclick="toggleCommentsSection('${post.id}')" class="flex items-center space-x-1 px-2.5 py-1 rounded-full bg-white/70 hover:bg-white text-slate-700 font-medium transition shadow-xs">
-                <i class="fa-regular fa-comment-dots text-blue-500"></i>
-                <span>${(post.comments || []).length} 則留言</span>
-              </button>
-            </div>
-
-            <!-- Expandable Comments Drawer -->
-            <div id="comments-box-${post.id}" class="hidden mt-3 pt-3 border-t border-black/10 space-y-2">
-              <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                ${commentsListHTML || '<p class="text-[11px] text-slate-500 text-center py-1">還沒有人留言，快來第一個鼓勵他！</p>'}
-              </div>
-
-              <!-- Add Comment Input Form -->
-              <form onsubmit="handleCommentSubmit(event, '${post.id}')" class="flex items-center space-x-1 pt-1">
-                <input type="text" id="comment-author-${post.id}" placeholder="你的名字" required class="w-1/3 px-2 py-1 text-xs rounded-lg border border-slate-300 bg-white/90">
-                <input type="text" id="comment-text-${post.id}" placeholder="寫下鼓勵或提問..." required class="flex-1 px-2 py-1 text-xs rounded-lg border border-slate-300 bg-white/90">
-                <button type="submit" class="p-1 px-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition">
-                  <i class="fa-solid fa-paper-plane"></i>
+                <button onclick="openPostModal()" class="bg-blue-500 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-600 shadow-sm transition">
+                    <i class="fa-solid fa-plus mr-1"></i>投稿
                 </button>
-              </form>
             </div>
-
-          </div>
-
         </div>
-      `;
-    }
+    </header>
 
-    function openPostModal() {
-      if (wallSettings.isLocked && !isTeacherMode) {
-        showToast("目前教師已關閉投稿功能！", "warning");
-        return;
-      }
-      document.getElementById("submissionForm").reset();
-      currentImageBase64 = "";
-      document.getElementById("imagePreviewBox").classList.add("hidden");
-      document.getElementById("postModal").classList.remove("hidden");
-    }
+    <!-- 留言牆主要區域 -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div id="wallContainer" class="masonry">
+            <!-- 卡片會由 JS 動態生成在這裡 -->
+        </div>
+    </main>
 
-    function closePostModal() {
-      document.getElementById("postModal").classList.add("hidden");
-    }
-
-    function insertEmoji(emoji) {
-      const textarea = document.getElementById("postContent");
-      textarea.value += emoji;
-      textarea.focus();
-    }
-
-    function handleImageFileSelect(input) {
-      if (input.files && input.files[0]) {
-        const file = input.files[0];
-        // Ensure image size reasonable
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          currentImageBase64 = e.target.result;
-          const previewEl = document.getElementById("imagePreviewElement");
-          previewEl.src = currentImageBase64;
-          document.getElementById("imagePreviewBox").classList.remove("hidden");
-          document.getElementById("postImageUrl").value = "";
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function handleImageUrlChange(val) {
-      if (val.trim()) {
-        currentImageBase64 = val.trim();
-        const previewEl = document.getElementById("imagePreviewElement");
-        previewEl.src = currentImageBase64;
-        document.getElementById("imagePreviewBox").classList.remove("hidden");
-      } else {
-        removeSelectedImage();
-      }
-    }
-
-    function removeSelectedImage() {
-      currentImageBase64 = "";
-      document.getElementById("postImageFile").value = "";
-      document.getElementById("postImageUrl").value = "";
-      document.getElementById("imagePreviewBox").classList.add("hidden");
-    }
-
-    function handlePostSubmit(e) {
-      e.preventDefault();
-
-      const className = document.getElementById("postClass").value.trim();
-      const author = document.getElementById("postAuthor").value.trim();
-      const isAnonymous = document.getElementById("postAnonymous").checked;
-      const title = document.getElementById("postTitle").value.trim();
-      const content = document.getElementById("postContent").value.trim();
-      const youtubeUrl = document.getElementById("postYoutubeUrl").value.trim();
-      const linkUrl = document.getElementById("postLinkUrl").value.trim();
-      
-      const selectedColorRadio = document.querySelector('input[name="noteColor"]:checked');
-      const color = selectedColorRadio ? selectedColorRadio.value : 'yellow';
-
-      const now = new Date();
-      const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-
-      // Random placement coordinates for Free layout
-      const randX = Math.floor(Math.random() * 500) + 20;
-      const randY = Math.floor(Math.random() * 300) + 20;
-
-      const newPost = {
-        id: "p_" + Date.now(),
-        className,
-        author,
-        isAnonymous,
-        title,
-        content,
-        color,
-        imageUrl: currentImageBase64,
-        youtubeUrl,
-        linkUrl,
-        likes: 0,
-        claps: 0,
-        isPinned: false,
-        isFeatured: false,
-        posX: randX,
-        posY: randY,
-        timestamp,
-        comments: []
-      };
-
-      if (wallSettings.requireModeration && !isTeacherMode) {
-        newPost.status = "pending";
-        pendingPosts.unshift(newPost);
-        savePosts();
-        updateAdminBarUI();
-        closePostModal();
-        showToast("投稿已送出！老師已開啟審核機制，審核通過後即會發布於牆面。", "info");
-      } else {
-        newPost.status = "approved";
-        posts.unshift(newPost);
-        savePosts();
-        renderWall();
-        closePostModal();
-        showToast("投稿成功！便利貼已貼上牆面囉！", "success");
-      }
-
-      // 背景自動發送至 Google 試算表
-      const gasUrl = localStorage.getItem(STORAGE_KEY_GAS) || DEFAULT_GAS_URL;
-      if (gasUrl) {
-        // 使用 text/plain 避免 CORS 阻擋，但後端 GAS 一樣能接收 JSON 字串
-        fetch(gasUrl, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({
-            action: "addPost",
-            post: newPost
-          })
-        }).catch(e => console.warn("Background GAS send failed", e));
-      }
-    }
-
-    function likePost(id) {
-      const p = posts.find(item => item.id === id);
-      if (p) {
-        p.likes = (p.likes || 0) + 1;
-        savePosts();
-        renderWall();
-        showToast("謝謝你的喜愛！已送出 ❤️", "success");
-      }
-    }
-
-    function clapPost(id) {
-      const p = posts.find(item => item.id === id);
-      if (p) {
-        p.claps = (p.claps || 0) + 1;
-        savePosts();
-        renderWall();
-        showToast("鼓掌加油！已送出 👏", "success");
-      }
-    }
-
-    function toggleCommentsSection(id) {
-      const el = document.getElementById(`comments-box-${id}`);
-      if (el) {
-        el.classList.toggle("hidden");
-      }
-    }
-
-    function handleCommentSubmit(e, postId) {
-      e.preventDefault();
-      const authorInput = document.getElementById(`comment-author-${postId}`);
-      const textInput = document.getElementById(`comment-text-${postId}`);
-      if (!authorInput || !textInput) return;
-
-      const author = authorInput.value.trim();
-      const text = textInput.value.trim();
-      if (!author || !text) return;
-
-      const p = posts.find(item => item.id === postId);
-      if (p) {
-        if (!p.comments) p.comments = [];
-        const now = new Date();
-        const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-        p.comments.push({ author, text, time });
-        savePosts();
-        renderWall();
-        showToast("留言成功發布！", "success");
-      }
-    }
-
-    function togglePinPost(id) {
-      const p = posts.find(item => item.id === id);
-      if (p) {
-        p.isPinned = !p.isPinned;
-        savePosts();
-        renderWall();
-        showToast(p.isPinned ? "已將便利貼置頂！" : "已取消置頂", "info");
-      }
-    }
-
-    function toggleFeaturePost(id) {
-      const p = posts.find(item => item.id === id);
-      if (p) {
-        p.isFeatured = !p.isFeatured;
-        savePosts();
-        renderWall();
-        showToast(p.isFeatured ? "已標記為興嘉精選作品！" : "已取消精選", "info");
-      }
-    }
-
-    function deletePost(id) {
-      showCustomConfirm("刪除便利貼", "確定要刪除這張便利貼嗎？此動作無法復原。", (confirmed) => {
-        if (confirmed) {
-          posts = posts.filter(item => item.id !== id);
-          savePosts();
-          renderWall();
-          showToast("便利貼已成功刪除", "info");
-        }
-      });
-    }
-
-    function setViewMode(mode) {
-      viewMode = mode;
-      const gridBtn = document.getElementById("viewGridBtn");
-      const freeBtn = document.getElementById("viewFreeBtn");
-      const gridBoard = document.getElementById("gridBoard");
-      const freeBoard = document.getElementById("freeBoard");
-
-      if (mode === 'grid') {
-        gridBtn.className = "px-2.5 py-1 rounded-lg text-xs font-medium bg-white text-slate-800 shadow-sm transition";
-        freeBtn.className = "px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition";
-        gridBoard.classList.remove("hidden");
-        freeBoard.classList.add("hidden");
-      } else {
-        freeBtn.className = "px-2.5 py-1 rounded-lg text-xs font-medium bg-white text-slate-800 shadow-sm transition";
-        gridBtn.className = "px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition";
-        gridBoard.classList.add("hidden");
-        freeBoard.classList.remove("hidden");
-      }
-      renderWall();
-    }
-
-    function setupCardDragging() {
-      const cards = document.querySelectorAll("#freeBoard .card-draggable");
-      cards.forEach(card => {
-        let isDragging = false;
-        let startX, startY, origX, origY;
-
-        const onPointerDown = (e) => {
-          if (e.target.closest("button") || e.target.closest("input") || e.target.closest("a") || e.target.closest("textarea")) {
-            return;
-          }
-          isDragging = true;
-          card.style.zIndex = 50;
-          startX = e.clientX || (e.touches && e.touches[0].clientX);
-          startY = e.clientY || (e.touches && e.touches[0].clientY);
-          origX = parseInt(card.style.left) || 0;
-          origY = parseInt(card.style.top) || 0;
-
-          document.addEventListener("pointermove", onPointerMove);
-          document.addEventListener("pointerup", onPointerUp);
-        };
-
-        const onPointerMove = (e) => {
-          if (!isDragging) return;
-          const curX = e.clientX || (e.touches && e.touches[0].clientX);
-          const curY = e.clientY || (e.touches && e.touches[0].clientY);
-          const dx = curX - startX;
-          const dy = curY - startY;
-
-          const newX = Math.max(0, origX + dx);
-          const newY = Math.max(0, origY + dy);
-          card.style.left = `${newX}px`;
-          card.style.top = `${newY}px`;
-        };
-
-        const onPointerUp = (e) => {
-          if (!isDragging) return;
-          isDragging = false;
-          card.style.zIndex = 10;
-          document.removeEventListener("pointermove", onPointerMove);
-          document.removeEventListener("pointerup", onPointerUp);
-
-          const postId = card.getAttribute("data-id");
-          const p = posts.find(item => item.id === postId);
-          if (p) {
-            p.posX = parseInt(card.style.left);
-            p.posY = parseInt(card.style.top);
-            savePosts();
-          }
-        };
-
-        card.addEventListener("pointerdown", onPointerDown);
-      });
-    }
-
-    function handleTeacherModeClick() {
-      if (isTeacherMode) {
-        logoutTeacherMode();
-      } else {
-        document.getElementById("teacherPasswordInput").value = "";
-        document.getElementById("loginErrorMsg").classList.add("hidden");
-        document.getElementById("teacherLoginModal").classList.remove("hidden");
-      }
-    }
-
-    function closeTeacherLoginModal() {
-      document.getElementById("teacherLoginModal").classList.add("hidden");
-    }
-
-    function handleTeacherLogin(e) {
-      e.preventDefault();
-      const pwd = document.getElementById("teacherPasswordInput").value;
-      // Default teacher password
-      if (pwd === "xingjia123" || pwd === "admin") {
-        isTeacherMode = true;
-        closeTeacherLoginModal();
-        updateAdminBarUI();
-        renderWall();
-        showToast("歡迎興嘉老師！已成功進入管理模式", "success");
-      } else {
-        document.getElementById("loginErrorMsg").classList.remove("hidden");
-      }
-    }
-
-    function logoutTeacherMode() {
-      isTeacherMode = false;
-      updateAdminBarUI();
-      renderWall();
-      showToast("已退出教師管理模式", "info");
-    }
-
-    function updateAdminBarUI() {
-      const adminBar = document.getElementById("teacherAdminBar");
-      const toggleBtn = document.getElementById("teacherModeToggleBtn");
-      const toggleBtnText = document.getElementById("teacherModeBtnText");
-      
-      if (isTeacherMode) {
-        adminBar.classList.remove("hidden");
-        toggleBtn.classList.replace("bg-slate-800", "bg-emerald-600");
-        toggleBtnText.textContent = "管理中 (登出)";
-        
-        // Update moderation badges
-        const count = pendingPosts.length;
-        document.getElementById("adminPendingCountText").textContent = `待審核：${count} 篇`;
-        document.getElementById("modBadgeCount").textContent = count;
-
-        // Update toggles texts
-        document.getElementById("toggleLockBtn").innerHTML = wallSettings.isLocked 
-          ? `<i class="fa-solid fa-lock-open mr-1"></i>開啟投稿` 
-          : `<i class="fa-solid fa-lock mr-1"></i>關閉投稿`;
-
-        document.getElementById("toggleModBtn").innerHTML = wallSettings.requireModeration 
-          ? `<i class="fa-solid fa-shield-halved mr-1 text-emerald-400"></i>審核制：開` 
-          : `<i class="fa-solid fa-shield-halved mr-1"></i>審核制：關`;
-
-        document.getElementById("toggleHideNameBtn").innerHTML = wallSettings.hideStudentNames 
-          ? `<i class="fa-solid fa-eye mr-1 text-amber-400"></i>還原姓名顯示` 
-          : `<i class="fa-solid fa-eye-slash mr-1"></i>遮蔽學生姓名`;
-
-      } else {
-        adminBar.classList.add("hidden");
-        toggleBtn.classList.replace("bg-emerald-600", "bg-slate-800");
-        toggleBtnText.textContent = "教師管理";
-      }
-    }
-
-    function toggleWallSubmissionLock() {
-      wallSettings.isLocked = !wallSettings.isLocked;
-      saveSettings();
-      showToast(wallSettings.isLocked ? "已鎖定留言牆！學生暫時無法新增投稿" : "已開放留言牆投稿！", "info");
-    }
-
-    function toggleWallModeration() {
-      wallSettings.requireModeration = !wallSettings.requireModeration;
-      saveSettings();
-      showToast(wallSettings.requireModeration ? "審核模式已啟動，新投稿需經教師核可才上牆" : "已關閉審核制，學生投稿將即時公開", "info");
-    }
-
-    function toggleHideNames() {
-      wallSettings.hideStudentNames = !wallSettings.hideStudentNames;
-      saveSettings();
-      renderWall();
-      showToast(wallSettings.hideStudentNames ? "已啟用學生匿名遮蔽模式" : "已恢復學生姓名完整顯示", "info");
-    }
-
-    function confirmClearWall() {
-      showCustomConfirm("清空全牆便利貼", "警告：此操作將會清空當前所有的學生投稿便利貼，確認清空嗎？", (confirmed) => {
-        if (confirmed) {
-          posts = [];
-          savePosts();
-          renderWall();
-          showToast("全牆留言已清空", "info");
-        }
-      });
-    }
-
-    function openModerationModal() {
-      const list = document.getElementById("moderationQueueList");
-      if (pendingPosts.length === 0) {
-        list.innerHTML = `
-          <div class="text-center py-12 text-slate-400">
-            <i class="fa-solid fa-inbox text-4xl mb-2"></i>
-            <p>目前沒有等待審核的學生投稿喔！</p>
-          </div>
-        `;
-      } else {
-        list.innerHTML = pendingPosts.map((p, index) => `
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
-            <div class="flex items-center justify-between text-xs">
-              <span class="font-bold text-slate-800">${escapeHTML(p.className)} - ${escapeHTML(p.author)}</span>
-              <span class="text-slate-400">${p.timestamp}</span>
+    <!-- 投稿彈窗 (已修復 ID 問題) -->
+    <div id="postModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+            <div class="bg-blue-500 p-4 text-white flex justify-between items-center">
+                <h2 class="text-lg font-bold"><i class="fa-solid fa-pen-to-square mr-2"></i>新增便利貼</h2>
+                <button onclick="closePostModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <h4 class="font-bold text-slate-800 text-sm">${escapeHTML(p.title)}</h4>
-            <p class="text-xs text-slate-600 whitespace-pre-line">${escapeHTML(p.content)}</p>
-            <div class="pt-2 flex justify-end space-x-2">
-              <button onclick="rejectPendingPost(${index})" class="px-3 py-1.5 rounded-lg bg-rose-100 text-rose-700 hover:bg-rose-200 text-xs font-bold transition">退回/拒絕</button>
-              <button onclick="approvePendingPost(${index})" class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold transition">審核通過並發布</button>
+            <div class="p-5 space-y-4">
+                <div class="flex gap-3">
+                    <input type="text" id="postClass" placeholder="班級" class="w-1/3 p-2 border rounded-lg focus:ring-2 focus:ring-blue-300 outline-none">
+                    <input type="text" id="postName" placeholder="姓名/暱稱" class="w-2/3 p-2 border rounded-lg focus:ring-2 focus:ring-blue-300 outline-none">
+                </div>
+                <input type="text" id="postTitle" placeholder="標題" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-300 outline-none">
+                <textarea id="postContent" rows="4" placeholder="寫下你的想法..." class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-300 outline-none"></textarea>
+                <div class="flex gap-2">
+                    <div class="w-8 h-8 rounded-full bg-yellow-200 cursor-pointer border-2 border-transparent hover:border-gray-400" onclick="selectColor('bg-yellow-200')"></div>
+                    <div class="w-8 h-8 rounded-full bg-pink-200 cursor-pointer border-2 border-transparent hover:border-gray-400" onclick="selectColor('bg-pink-200')"></div>
+                    <div class="w-8 h-8 rounded-full bg-blue-200 cursor-pointer border-2 border-transparent hover:border-gray-400" onclick="selectColor('bg-blue-200')"></div>
+                    <div class="w-8 h-8 rounded-full bg-green-200 cursor-pointer border-2 border-transparent hover:border-gray-400" onclick="selectColor('bg-green-200')"></div>
+                </div>
+                <button onclick="submitPost()" class="w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600 transition">送出投稿</button>
             </div>
-          </div>
-        `).join("");
-      }
-      document.getElementById("moderationModal").classList.remove("hidden");
-    }
+        </div>
+    </div>
 
-    function closeModerationModal() {
-      document.getElementById("moderationModal").classList.add("hidden");
-    }
+    <!-- 主題切換彈窗 -->
+    <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+            <div class="bg-amber-500 p-4 text-white flex justify-between items-center">
+                <h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>切換主題與節慶</h2>
+                <button onclick="closeThemeModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-5 grid grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto">
+                <button onclick="applyTheme('晨讀心得分享', 'bg-gray-100')" class="p-4 border rounded-xl hover:bg-gray-50 text-left">
+                    <div class="text-2xl mb-2">📚</div><div class="font-bold">晨讀心得牆</div>
+                </button>
+                <button onclick="applyTheme('教師節感恩牆', 'bg-orange-50')" class="p-4 border rounded-xl hover:bg-orange-50 text-left">
+                    <div class="text-2xl mb-2">🍎</div><div class="font-bold">教師節敬師</div>
+                </button>
+                <button onclick="applyTheme('母親節感恩牆', 'bg-pink-50')" class="p-4 border rounded-xl hover:bg-pink-50 text-left">
+                    <div class="text-2xl mb-2">🌸</div><div class="font-bold">母親節感恩</div>
+                </button>
+                <button onclick="applyTheme('畢業季祝福', 'bg-blue-50')" class="p-4 border rounded-xl hover:bg-blue-50 text-left">
+                    <div class="text-2xl mb-2">🎓</div><div class="font-bold">畢業季祝福</div>
+                </button>
+            </div>
+        </div>
+    </div>
 
-    function approvePendingPost(index) {
-      const approved = pendingPosts.splice(index, 1)[0];
-      if (approved) {
-        posts.unshift(approved);
-        savePosts();
-        updateAdminBarUI();
-        renderWall();
-        openModerationModal();
-        showToast("已通過審核並公開於牆面！", "success");
-      }
-    }
-
-    function rejectPendingPost(index) {
-      pendingPosts.splice(index, 1);
-      savePosts();
-      updateAdminBarUI();
-      openModerationModal();
-      showToast("已退回該投稿", "info");
-    }
-
-    function openPresetsModal() {
-      document.getElementById("presetsModal").classList.remove("hidden");
-    }
-
-    function closePresetsModal() {
-      document.getElementById("presetsModal").classList.add("hidden");
-    }
-
-    function applyPreset(index) {
-      const p = XINGJIA_PRESETS[index];
-      if (p) {
-        wallSettings.title = p.title;
-        wallSettings.badge = p.badge;
-        wallSettings.description = p.description;
-        wallSettings.bgStyle = p.bgStyle;
-        saveSettings();
-        closePresetsModal();
-        showToast(`已切換為「${p.title}」情境範本！`, "success");
-      }
-    }
-
-    function openWallSettingsModal() {
-      document.getElementById("settingsTitle").value = wallSettings.title;
-      document.getElementById("settingsBadge").value = wallSettings.badge;
-      document.getElementById("settingsDesc").value = wallSettings.description;
-      document.getElementById("settingsBgStyle").value = wallSettings.bgStyle;
-      document.getElementById("wallSettingsModal").classList.remove("hidden");
-    }
-
-    function closeWallSettingsModal() {
-      document.getElementById("wallSettingsModal").classList.add("hidden");
-    }
-
-    function saveWallSettings(e) {
-      e.preventDefault();
-      wallSettings.title = document.getElementById("settingsTitle").value.trim();
-      wallSettings.badge = document.getElementById("settingsBadge").value.trim() || "興嘉學習";
-      wallSettings.description = document.getElementById("settingsDesc").value.trim();
-      wallSettings.bgStyle = document.getElementById("settingsBgStyle").value;
-      saveSettings();
-      closeWallSettingsModal();
-      showToast("主題牆資訊已更新！", "success");
-    }
-
-    function openQrModal() {
-      generateQrCode();
-      document.getElementById("qrModal").classList.remove("hidden");
-    }
-
-    function closeQrModal() {
-      document.getElementById("qrModal").classList.add("hidden");
-    }
-
-    function generateQrCode() {
-      const qrCanvas = document.getElementById("qrcodeCanvas");
-      qrCanvas.innerHTML = "";
-      const currentUrl = window.location.href;
-      document.getElementById("shareUrlInput").value = currentUrl;
-      try {
-        new QRCode(qrCanvas, {
-          text: currentUrl,
-          width: 170,
-          height: 170,
-          colorDark: "#1e293b",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.M
-        });
-      } catch (err) {
-        console.warn("QR code generation error", err);
-      }
-    }
-
-    function copyShareUrl() {
-      const input = document.getElementById("shareUrlInput");
-      input.select();
-      input.setSelectionRange(0, 99999);
-      try {
-        document.execCommand('copy');
-        showToast("已成功複製分享網址！", "success");
-      } catch (err) {
-        showToast("請手動選取網址複製", "warning");
-      }
-    }
-
-    function exportWallToCSV() {
-      if (posts.length === 0) {
-        showToast("目前牆面無投稿可匯出！", "warning");
-        return;
-      }
-
-      // Add UTF-8 BOM so Excel opens Traditional Chinese properly
-      let csvContent = "\uFEFF";
-      csvContent += "流水號,班級,作者姓名,匿名狀態,標題,心得內容,多媒體連結,按讚數,鼓掌數,留言數,投稿時間\r\n";
-
-      posts.forEach((p, idx) => {
-        const row = [
-          idx + 1,
-          `"${(p.className || '').replace(/"/g, '""')}"`,
-          `"${(p.author || '').replace(/"/g, '""')}"`,
-          p.isAnonymous ? "是" : "否",
-          `"${(p.title || '').replace(/"/g, '""')}"`,
-          `"${(p.content || '').replace(/"/g, '""')}"`,
-          `"${(p.youtubeUrl || p.linkUrl || p.imageUrl || '').replace(/"/g, '""')}"`,
-          p.likes || 0,
-          p.claps || 0,
-          (p.comments || []).length,
-          `"${p.timestamp || ''}"`
-        ];
-        csvContent += row.join(",") + "\r\n";
-      });
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      const filename = `興嘉國小_${wallSettings.title.replace(/[^\w\u4e00-\u9fa5]/g, '')}_投稿成果_${new Date().toISOString().slice(0,10)}.csv`;
-      
-      link.setAttribute("href", url);
-      link.setAttribute("download", filename);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast("已成功下載 CSV 成績與回饋總表！", "success");
-    }
-
-    function openGasModal() {
-      const savedGas = localStorage.getItem(STORAGE_KEY_GAS) || "";
-      document.getElementById("gasEndpointInput").value = savedGas;
-      document.getElementById("gasModal").classList.remove("hidden");
-    }
-
-    function closeGasModal() {
-      document.getElementById("gasModal").classList.add("hidden");
-    }
-
-    function saveGasSettings() {
-      const url = document.getElementById("gasEndpointInput").value.trim();
-      localStorage.setItem(STORAGE_KEY_GAS, url);
-      showToast("試算表 Web App 網址已儲存！", "success");
-      closeGasModal();
-    }
-
-    function copyGasTemplateCode() {
-      const code = document.getElementById("gasTemplatePre").innerText;
-      const tempArea = document.createElement("textarea");
-      tempArea.value = code;
-      document.body.appendChild(tempArea);
-      tempArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(tempArea);
-      showToast("已複製 Google Apps Script 範例程式碼！", "success");
-    }
-
-    // 從 Google 試算表拉取最新資料 (GET)
-    async function fetchCloudData(showToastMsg = false) {
-      const gasUrl = localStorage.getItem(STORAGE_KEY_GAS) || DEFAULT_GAS_URL;
-      if (!gasUrl) {
-        if (showToastMsg) showToast("尚未設定 Google 試算表連線網址！", "warning");
-        return;
-      }
-      
-      const refreshIcon = document.getElementById("cloudRefreshIcon");
-      const statusText = document.getElementById("cloudStatusText");
-      if (refreshIcon) refreshIcon.classList.add("fa-spin");
-      if (statusText) statusText.textContent = "同步中...";
-      if (showToastMsg) showToast("正在與雲端試算表同步資料...", "info");
-
-      try {
-        const response = await fetch(gasUrl);
-        const result = await response.json();
+    <script>
+        // 您的 Google Apps Script 專屬網址
+        const GAS_URL = "https://script.google.com/macros/s/AKfycby4qr-hd5bA_rsg0MU5qvXk1cGXcYS2HK_yh5G_kqNIS7ODQooUc12sA--dqbxDsBI4/exec";
         
-        if (result.status === "success") {
-          // 更新牆面設定
-          if (result.settings && result.settings.title) {
-            wallSettings = { ...wallSettings, ...result.settings };
-            saveSettings(); 
-          }
-          
-          // 更新便利貼
-          if (result.posts) {
-            posts = result.posts.filter(p => p.status === "approved");
-            if (isTeacherMode) {
-              // 老師模式下拉取待審核名單
-              pendingPosts = result.posts.filter(p => p.status === "pending");
-              localStorage.setItem(STORAGE_KEY_MODERATION, JSON.stringify(pendingPosts));
-            }
-            savePosts();
+        let notes = JSON.parse(localStorage.getItem('eduWallNotes')) || [];
+        let currentColor = 'bg-yellow-200';
+
+        // 彈窗控制邏輯 (核心修復區)
+        function openPostModal() { document.getElementById('postModal').classList.remove('hidden'); }
+        function closePostModal() { document.getElementById('postModal').classList.add('hidden'); }
+        function openThemeModal() { document.getElementById('themeModal').classList.remove('hidden'); }
+        function closeThemeModal() { document.getElementById('themeModal').classList.add('hidden'); }
+
+        function selectColor(color) { currentColor = color; }
+
+        function applyTheme(title, bgColorClass) {
+            document.getElementById('headerTitle').innerText = '興嘉國小 ' + title;
+            document.getElementById('bodyBg').className = `min-h-screen transition-colors duration-500 ${bgColorClass}`;
+            closeThemeModal();
+        }
+
+        // 渲染留言牆
+        function renderWall() {
+            const container = document.getElementById('wallContainer');
+            container.innerHTML = '';
+            notes.reverse().forEach(note => {
+                const card = document.createElement('div');
+                card.className = `masonry-item note-card ${note.color} p-4 rounded-xl shadow-sm border border-black/5`;
+                card.innerHTML = `
+                    <div class="text-xs text-gray-500 mb-1 flex justify-between">
+                        <span>${note.classInfo} ${note.name}</span>
+                        <span>${note.date}</span>
+                    </div>
+                    <h3 class="font-bold text-gray-800 mb-2">${note.title}</h3>
+                    <p class="text-gray-700 whitespace-pre-wrap text-sm">${note.content}</p>
+                    <div class="mt-4 flex gap-2">
+                        <button onclick="likeNote('${note.id}')" class="text-red-500 text-sm bg-white/50 px-2 py-1 rounded-full hover:bg-white/80">
+                            ❤️ ${note.likes || 0}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            notes.reverse(); // 恢復原始順序
+        }
+
+        // 新增投稿
+        function submitPost() {
+            const classInfo = document.getElementById('postClass').value.trim();
+            const name = document.getElementById('postName').value.trim() || '匿名';
+            const title = document.getElementById('postTitle').value.trim();
+            const content = document.getElementById('postContent').value.trim();
+
+            if (!content) { alert('請填寫內容！'); return; }
+
+            const newNote = {
+                id: Date.now().toString(),
+                classInfo: classInfo,
+                name: name,
+                title: title,
+                content: content,
+                color: currentColor,
+                date: new Date().toLocaleDateString('zh-TW'),
+                likes: 0
+            };
+
+            notes.push(newNote);
+            saveData();
             renderWall();
-          }
-          
-          if (showToastMsg) showToast("雲端資料同步完成！", "success");
-          document.getElementById("wallLastUpdated").textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        } else {
-          if (showToastMsg) showToast("同步失敗：" + result.message, "warning");
+            
+            // 清空表單
+            document.getElementById('postClass').value = '';
+            document.getElementById('postName').value = '';
+            document.getElementById('postTitle').value = '';
+            document.getElementById('postContent').value = '';
+            closePostModal();
+
+            // 背景同步至 Google 試算表
+            syncToGAS('add', newNote);
         }
-      } catch (error) {
-        console.error("Cloud sync error:", error);
-        if (showToastMsg) showToast("連線異常，已切換回離線暫存模式", "warning");
-      } finally {
-        if (refreshIcon) refreshIcon.classList.remove("fa-spin");
-        if (statusText) statusText.textContent = "雲端同步";
-        updateAdminBarUI();
-      }
-    }
 
-    // 全量上傳現有卡片至試算表 (POST)
-    async function syncToGoogleSheets() {
-      const gasUrl = document.getElementById("gasEndpointInput").value.trim() || localStorage.getItem(STORAGE_KEY_GAS) || DEFAULT_GAS_URL;
-      if (!gasUrl) {
-        showToast("請先輸入您的 Google Apps Script 部署網址！", "warning");
-        return;
-      }
-
-      showToast("正在全量同步至試算表，請稍候...", "info");
-      try {
-        const allPostsToSync = [...posts, ...pendingPosts];
-        const response = await fetch(gasUrl, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({
-            action: "syncAll",
-            wallTitle: wallSettings.title,
-            settings: wallSettings,
-            posts: allPostsToSync
-          })
-        });
-        
-        const result = await response.json();
-        if (result.status === "success") {
-          showToast(`全量資料已發送！共覆寫 ${result.count} 筆資料`, "success");
-        } else {
-          showToast("上傳失敗：" + result.message, "warning");
+        // 按讚功能
+        function likeNote(id) {
+            const note = notes.find(n => n.id === id);
+            if(note) {
+                note.likes = (note.likes || 0) + 1;
+                saveData();
+                renderWall();
+                syncToGAS('like', { id: id, likes: note.likes });
+            }
         }
-      } catch (err) {
-        console.error(err);
-        showToast("連線試算表失敗，請檢查網址或權限設定 (留意是否允許跨域)", "warning");
-      }
-    }
 
-    function renderStats() {
-      const totalPosts = posts.length;
-      const totalLikes = posts.reduce((acc, p) => acc + (p.likes || 0), 0);
-      const totalComments = posts.reduce((acc, p) => acc + ((p.comments || []).length), 0);
+        // 儲存至本機
+        function saveData() { localStorage.setItem('eduWallNotes', JSON.stringify(notes)); }
 
-      document.getElementById("statPostCount").textContent = totalPosts;
-      document.getElementById("statLikeCount").textContent = totalLikes;
-      document.getElementById("statCommentCount").textContent = totalComments;
-    }
+        // 背景同步至 GAS (單向寫入測試)
+        function syncToGAS(action, data) {
+            fetch(GAS_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: action, data: data })
+            }).catch(e => console.log('背景同步失敗:', e));
+        }
 
-    function extractYouTubeID(url) {
-      if (!url) return null;
-      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-      const match = url.match(regExp);
-      return (match && match[2].length === 11) ? match[2] : null;
-    }
+        // 點擊同步按鈕 (讀取雲端)
+        function syncWithCloud() {
+            const btn = document.querySelector('button[onclick="syncWithCloud()"]');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>同步中';
+            fetch(GAS_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        notes = data;
+                        saveData();
+                        renderWall();
+                    }
+                    btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>已同步';
+                    setTimeout(() => btn.innerHTML = '<i class="fa-solid fa-rotate mr-1"></i>同步', 2000);
+                })
+                .catch(err => {
+                    console.log(err);
+                    btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i>失敗';
+                    setTimeout(() => btn.innerHTML = '<i class="fa-solid fa-rotate mr-1"></i>同步', 2000);
+                });
+        }
 
-    function escapeHTML(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    function showToast(message, type = "success") {
-      const toast = document.getElementById("toastNotification");
-      const icon = document.getElementById("toastIcon");
-      const text = document.getElementById("toastMsg");
-
-      text.textContent = message;
-
-      if (type === "success") {
-        icon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
-      } else if (type === "warning") {
-        icon.className = "fa-solid fa-triangle-exclamation text-amber-400 text-base";
-      } else {
-        icon.className = "fa-solid fa-circle-info text-blue-400 text-base";
-      }
-
-      toast.classList.remove("opacity-0", "pointer-events-none", "translate-y-3");
-      toast.classList.add("opacity-100", "translate-y-0");
-
-      setTimeout(() => {
-        toast.classList.remove("opacity-100", "translate-y-0");
-        toast.classList.add("opacity-0", "pointer-events-none", "translate-y-3");
-      }, 3000);
-    }
-
-    function showCustomConfirm(title, message, callback) {
-      confirmCallback = callback;
-      document.getElementById("confirmTitle").textContent = title;
-      document.getElementById("confirmMessage").textContent = message;
-      document.getElementById("customConfirmModal").classList.remove("hidden");
-    }
-
-    function closeConfirmModal(result) {
-      document.getElementById("customConfirmModal").classList.add("hidden");
-      if (confirmCallback) {
-        confirmCallback(result);
-        confirmCallback = null;
-      }
-    }
-  </script>
+        // 初始載入
+        renderWall();
+    </script>
 </body>
 </html>
