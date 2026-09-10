@@ -123,9 +123,9 @@
             <div id="adminPanel" class="p-6 hidden space-y-4">
                 <div class="text-green-600 font-bold border-b pb-3 mb-2 flex items-center"><i class="fa-solid fa-check-circle mr-2 text-xl"></i>已成功登入管理模式</div>
                 
-                <!-- 總管專屬按鈕：管理教師帳號 -->
+                <!-- 總管專屬按鈕 -->
                 <button id="superAdminBtn" onclick="openTeacherManage()" class="hidden w-full bg-blue-100 text-blue-700 font-bold py-3 rounded-xl hover:bg-blue-200 border border-blue-200 transition">
-                    <i class="fa-solid fa-users-gear mr-2"></i>管理教師帳號 (總管專用)
+                    <i class="fa-solid fa-users-gear mr-2"></i>管理教師名單 (總管專用)
                 </button>
                 
                 <button onclick="clearAllNotes()" class="w-full bg-red-100 text-red-600 font-bold py-3 rounded-xl hover:bg-red-200 border border-red-200 transition">
@@ -146,15 +146,14 @@
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6">
                     <h3 class="font-bold text-blue-800 mb-3 text-sm">新增一位教師</h3>
                     <div class="flex gap-2 mb-2">
-                        <input type="text" id="newTName" placeholder="教師姓名/稱呼" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400">
-                        <input type="text" id="newTPwd" placeholder="設定登入密碼" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400">
+                        <input type="text" id="newTName" placeholder="教師姓名" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400">
+                        <input type="text" id="newTPwd" placeholder="設定密碼" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400">
                     </div>
                     <button id="addTBtn" onclick="addTeacher()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 text-sm transition">新增帳號</button>
                 </div>
                 
                 <h3 class="font-bold text-gray-700 mb-3 border-b pb-2">目前已授權的教師名單</h3>
                 <div id="teacherListContainer" class="space-y-2">
-                    <!-- 教師名單由 JS 動態產生 -->
                     <div class="text-center text-gray-400 text-sm py-4">載入中...</div>
                 </div>
             </div>
@@ -218,7 +217,6 @@
                     document.getElementById('adminLogin').classList.add('hidden');
                     document.getElementById('adminPanel').classList.remove('hidden');
                     
-                    // 切換頂部按鈕狀態
                     document.getElementById('teacherBtn').classList.add('hidden');
                     document.getElementById('adminControls').classList.remove('hidden');
                     
@@ -226,11 +224,11 @@
                     if (data.role === 'superadmin') {
                         roleBadge.innerHTML = '<i class="fa-solid fa-crown mr-1"></i>最高總管';
                         roleBadge.className = 'bg-purple-100 text-purple-700 px-2 py-1.5 rounded-lg text-sm font-bold border border-purple-200 hidden sm:block';
-                        document.getElementById('superAdminBtn').classList.remove('hidden');
+                        document.getElementById('superAdminBtn').classList.remove('hidden'); // 顯示管理按鈕
                     } else {
                         roleBadge.innerHTML = '<i class="fa-solid fa-user-check mr-1"></i>教師模式';
                         roleBadge.className = 'bg-green-100 text-green-700 px-2 py-1.5 rounded-lg text-sm font-bold border border-green-200 hidden sm:block';
-                        document.getElementById('superAdminBtn').classList.add('hidden');
+                        document.getElementById('superAdminBtn').classList.add('hidden'); // 隱藏管理按鈕
                     }
                     
                     document.getElementById('adminPwd').value = ''; 
@@ -287,8 +285,8 @@
                     }
                     data.teachers.forEach(t => {
                         container.innerHTML += `
-                            <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
-                                <div><div class="font-bold text-gray-800 text-sm">${t.name}</div><div class="text-xs text-gray-500 font-mono">密碼: ${t.pwd}</div></div>
+                            <div class="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                                <div><div class="font-bold text-gray-800 text-sm">${t.name}</div><div class="text-xs text-gray-500 font-mono mt-0.5">密碼: ${t.pwd}</div></div>
                                 <button onclick="deleteTeacher('${t.pwd}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         `;
@@ -569,4 +567,3 @@
     </script>
 </body>
 </html>
-  
