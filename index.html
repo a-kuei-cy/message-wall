@@ -7,94 +7,77 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #fffbeb; background-image: radial-gradient(#d1d5db 1px, transparent 1px); background-size: 20px 20px; }
+        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #dbeafe; /* 預設淡藍色背景 */ transition: background-color 0.5s ease; }
+        
+        /* 多欄位瀑布流核心設定 */
         .masonry { column-count: 1; column-gap: 1.5rem; padding: 1rem; }
         @media (min-width: 640px) { .masonry { column-count: 2; } }
-        @media (min-width: 768px) { .masonry { column-count: 3; } }
-        @media (min-width: 1024px) { .masonry { column-count: 4; } }
-        .masonry-item { break-inside: avoid; margin-bottom: 1.5rem; display: inline-block; width: 100%; }
-        .note-card { transition: all 0.3s ease; }
-        .note-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        @media (min-width: 800px) { .masonry { column-count: 3; } }
+        @media (min-width: 1100px) { .masonry { column-count: 4; } }
+        @media (min-width: 1400px) { .masonry { column-count: 5; } }
+        
+        .masonry-item { break-inside: avoid; margin-bottom: 1.5rem; display: block; width: 100%; }
+        .note-card { transition: all 0.2s ease; }
+        .note-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
 <body class="min-h-screen text-gray-800" id="bodyBg">
 
     <!-- 頂部導覽列 -->
-    <header class="bg-white shadow-sm sticky top-0 z-40">
-        <div class="max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between">
+    <header class="bg-white/95 backdrop-blur shadow-sm sticky top-0 z-40">
+        <div class="max-w-[1600px] mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white text-xl shadow-md">
                     <i class="fa-solid fa-chalkboard-user"></i>
                 </div>
                 <div>
-                    <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">嘉義市興嘉國小</span>
-                    <h1 class="text-xl font-bold mt-0.5" id="headerTitle">晨讀心得分享牆 📖 ✏️</h1>
+                    <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full" id="headerTag">嘉義市興嘉國小</span>
+                    <h1 class="text-xl font-bold mt-0.5 text-gray-800" id="headerTitle">晨讀心得分享牆</h1>
                 </div>
             </div>
             <div class="flex gap-2 items-center">
-                <button onclick="openModal('themeModal')" class="bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-amber-200 transition">
-                    <i class="fa-solid fa-palette mr-1"></i>切換主題
+                <button onclick="openModal('themeModal')" class="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-gray-200 transition">
+                    <i class="fa-solid fa-palette mr-1"></i>主題
                 </button>
-                <button onclick="openModal('qrModal')" class="bg-white text-gray-600 border border-gray-200 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-gray-50 transition hidden sm:block">
-                    <i class="fa-solid fa-qrcode mr-1"></i>QR 碼
+                <button onclick="openModal('qrModal')" class="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-gray-200 transition hidden sm:block">
+                    <i class="fa-solid fa-qrcode mr-1"></i>分享
                 </button>
-                <button onclick="syncWithCloud()" id="syncBtn" class="bg-blue-50 text-blue-600 border border-blue-100 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-blue-100 transition">
-                    <i class="fa-solid fa-rotate mr-1"></i>雲端同步
+                <button onclick="syncWithCloud()" id="syncBtn" class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-blue-100 transition">
+                    <i class="fa-solid fa-rotate mr-1"></i>同步
                 </button>
                 <button onclick="openModal('teacherModal')" class="bg-gray-800 text-white px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-gray-700 transition hidden sm:block">
-                    <i class="fa-solid fa-user-gear mr-1"></i>教師管理
+                    <i class="fa-solid fa-user-gear mr-1"></i>管理
                 </button>
                 <button onclick="openModal('postModal')" class="bg-orange-500 text-white px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-orange-600 shadow-md transition transform hover:scale-105">
-                    <i class="fa-solid fa-plus mr-1"></i>我要投稿
+                    <i class="fa-solid fa-plus mr-1"></i>新增
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- 活動資訊與統計橫幅 -->
-    <div class="bg-amber-50/90 border-b border-amber-200 backdrop-blur-sm transition-all duration-300">
-        <div class="max-w-[1400px] mx-auto px-4 py-4 flex justify-between items-center flex-wrap gap-4">
-            <div>
-                <div class="flex items-center gap-2 mb-2 text-sm text-gray-500">
-                    <span id="headerTag" class="bg-orange-500 text-white text-xs px-2 py-0.5 rounded font-bold">閱讀推廣</span>
-                    <i class="fa-regular fa-clock"></i> <span id="updateTime">更新時間：載入中...</span>
-                </div>
-                <p class="text-gray-700 font-medium text-sm sm:text-base" id="headerDesc">歡迎興嘉國小的同學們！讀完一本好書後，請寫下 50 字心得與喜愛的一句話，並拍照上傳與全班分享喔！</p>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 flex gap-6 text-center w-full sm:w-auto min-w-[250px]">
-                <div class="flex-1 border-r border-gray-100">
-                    <div class="text-2xl font-black text-orange-500" id="statPosts">0</div>
-                    <div class="text-xs text-gray-500 mt-1">投稿數量</div>
-                </div>
-                <div class="flex-1">
-                    <div class="text-2xl font-black text-pink-500" id="statLikes">0</div>
-                    <div class="text-xs text-gray-500 mt-1">獲得讚數</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- 留言牆主要區域 -->
-    <main class="max-w-[1400px] mx-auto py-6">
-        <div id="wallContainer" class="masonry"></div>
+    <main class="max-w-[1600px] mx-auto py-6">
+        <div id="wallContainer" class="masonry">
+            <!-- 卡片會動態生成於此 -->
+        </div>
     </main>
 
-    <!-- 投稿彈窗 (加入圖片上傳區塊) -->
+    <!-- 投稿彈窗 (支援圖片與自動壓縮) -->
     <div id="postModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all max-h-[90vh] overflow-y-auto">
             <div class="bg-gradient-to-r from-orange-500 to-amber-500 p-4 text-white flex justify-between items-center sticky top-0 z-10">
-                <h2 class="text-lg font-bold"><i class="fa-solid fa-pen-to-square mr-2"></i>新增便利貼</h2>
+                <h2 class="text-lg font-bold"><i class="fa-solid fa-pen-to-square mr-2"></i>新增貼文</h2>
                 <button onclick="closeModal('postModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="p-6 space-y-4">
                 <div class="flex gap-3">
-                    <input type="text" id="postClass" placeholder="班級" class="w-2/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 outline-none transition">
+                    <input type="text" id="postClass" placeholder="班級 (例: 六年一班)" class="w-2/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 outline-none transition">
                     <input type="text" id="postName" placeholder="姓名/暱稱" class="w-3/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 outline-none transition">
                 </div>
-                <input type="text" id="postTitle" placeholder="給這篇留言一個標題吧！" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 outline-none transition font-bold">
+                <input type="text" id="postTitle" placeholder="給這篇貼文一個標題吧！" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 outline-none transition font-bold">
                 <textarea id="postContent" rows="4" placeholder="寫下你的想法..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 outline-none transition resize-none"></textarea>
                 
-                <!-- 📸 新增：照片上傳區塊 -->
+                <!-- 照片上傳區塊 -->
                 <div class="bg-orange-50/50 p-4 rounded-xl border border-orange-100">
                     <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-camera mr-1 text-orange-500"></i>上傳照片 (選填)</label>
                     <input type="file" id="postImage" accept="image/*" onchange="previewImage(event)" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600 cursor-pointer transition">
@@ -108,93 +91,135 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">選擇顏色</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">選擇頭像與邊框顏色</label>
                     <div class="flex gap-3">
-                        <div class="w-10 h-10 rounded-full bg-yellow-200 cursor-pointer border-4 border-white shadow hover:ring-2 hover:ring-yellow-400" onclick="selectColor('bg-yellow-200')"></div>
-                        <div class="w-10 h-10 rounded-full bg-pink-200 cursor-pointer border-4 border-white shadow hover:ring-2 hover:ring-pink-400" onclick="selectColor('bg-pink-200')"></div>
-                        <div class="w-10 h-10 rounded-full bg-blue-200 cursor-pointer border-4 border-white shadow hover:ring-2 hover:ring-blue-400" onclick="selectColor('bg-blue-200')"></div>
-                        <div class="w-10 h-10 rounded-full bg-green-200 cursor-pointer border-4 border-white shadow hover:ring-2 hover:ring-green-400" onclick="selectColor('bg-green-200')"></div>
-                        <div class="w-10 h-10 rounded-full bg-orange-200 cursor-pointer border-4 border-white shadow hover:ring-2 hover:ring-orange-400" onclick="selectColor('bg-orange-200')"></div>
+                        <div class="w-10 h-10 rounded-full bg-green-400 cursor-pointer border-4 border-white shadow hover:ring-2 hover:ring-green-500" onclick="selectColor('bg-green-400')"></div>
+                        <div class="w-10 h-10 rounded-full bg-yellow-400 cursor-pointer border-4 border-white shadow hover:ring-2 hover:ring-yellow-500" onclick="selectColor('bg-yellow-400')"></div>
+                        <div class="w-10 h-10 rounded-full bg-orange-400 cursor-pointer border-4 border-white shadow hover:ring-2 hover:ring-orange-500" onclick="selectColor('bg-orange-400')"></div>
+                        <div class="w-10 h-10 rounded-full bg-pink-400 cursor-pointer border-4 border-white shadow hover:ring-2 hover:ring-pink-500" onclick="selectColor('bg-pink-400')"></div>
+                        <div class="w-10 h-10 rounded-full bg-blue-400 cursor-pointer border-4 border-white shadow hover:ring-2 hover:ring-blue-500" onclick="selectColor('bg-blue-400')"></div>
                     </div>
                 </div>
                 
                 <button onclick="submitPost()" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3 rounded-xl hover:shadow-lg transition mt-2">
-                    🚀 送出投稿
+                    🚀 送出貼文
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 主題、QR、教師管理彈窗 (保持不變) -->
-    <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden"><div class="bg-amber-600 p-4 text-white flex justify-between items-center"><h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>切換主題與節慶範本</h2><button onclick="closeModal('themeModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4"><button onclick="applyTheme('晨讀心得分享牆 📖 ✏️', '閱讀推廣', '歡迎興嘉國小的同學們！讀完一本好書後，請寫下 50 字心得與喜愛的一句話，並拍照上傳與全班分享喔！')" class="p-4 border-2 border-transparent bg-amber-50 rounded-xl hover:border-amber-400 text-left transition"><div class="text-3xl mb-2">📚</div><div class="font-bold text-gray-800">晨讀心得牆</div></button><button onclick="applyTheme('教師節敬師感恩牆 🍎', '敬師活動', '大聲說出你的感謝！請寫下對老師的感恩與祝福。')" class="p-4 border-2 border-transparent bg-orange-50 rounded-xl hover:border-orange-400 text-left transition"><div class="text-3xl mb-2">🍎</div><div class="font-bold text-gray-800">教師節敬師</div></button><button onclick="applyTheme('母親節感恩牆 🌸', '感恩溫馨', '母親節快樂！留下你想對媽媽說的心裡話，給媽媽一個驚喜吧。')" class="p-4 border-2 border-transparent bg-pink-50 rounded-xl hover:border-pink-400 text-left transition"><div class="text-3xl mb-2">🌸</div><div class="font-bold text-gray-800">母親節感恩</div></button></div></div></div>
-    <div id="teacherModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"><div class="bg-gray-800 p-4 text-white flex justify-between items-center"><h2 class="text-lg font-bold"><i class="fa-solid fa-user-gear mr-2"></i>教師管理後台</h2><button onclick="closeModal('teacherModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div id="adminLogin" class="p-6"><p class="text-sm text-gray-600 mb-4">請輸入密碼 (預設 xingjia123)</p><input type="password" id="adminPwd" class="w-full p-3 border rounded-xl mb-4 focus:ring-2 focus:ring-gray-500 outline-none"><button onclick="checkAdmin()" class="w-full bg-gray-800 text-white font-bold py-2 rounded-xl hover:bg-gray-700">登入</button></div><div id="adminPanel" class="p-6 hidden space-y-4"><div class="text-green-600 font-bold mb-4 border-b pb-2"><i class="fa-solid fa-check-circle mr-1"></i>身分驗證成功</div><button onclick="clearAllNotes()" class="w-full bg-red-100 text-red-600 font-bold py-3 rounded-xl hover:bg-red-200 border border-red-200 transition"><i class="fa-solid fa-trash-can mr-2"></i>清空所有留言</button></div></div></div>
+    <!-- 主題切換彈窗 -->
+    <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden">
+            <div class="bg-amber-600 p-4 text-white flex justify-between items-center">
+                <h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>切換主題與背景</h2>
+                <button onclick="closeModal('themeModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button onclick="applyTheme('晨讀心得分享', '閱讀推廣', 'bg-blue-100')" class="p-4 border-2 border-transparent bg-blue-50 rounded-xl hover:border-blue-400 text-left transition">
+                    <div class="text-3xl mb-2">📚</div><div class="font-bold text-gray-800">晨讀心得牆</div>
+                </button>
+                <button onclick="applyTheme('教師節敬師', '敬師活動', 'bg-orange-100')" class="p-4 border-2 border-transparent bg-orange-50 rounded-xl hover:border-orange-400 text-left transition">
+                    <div class="text-3xl mb-2">🍎</div><div class="font-bold text-gray-800">教師節敬師</div>
+                </button>
+                <button onclick="applyTheme('母親節感恩', '溫馨感恩', 'bg-pink-100')" class="p-4 border-2 border-transparent bg-pink-50 rounded-xl hover:border-pink-400 text-left transition">
+                    <div class="text-3xl mb-2">🌸</div><div class="font-bold text-gray-800">母親節感恩</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 安全版教師管理彈窗 (密碼不寫死在前端) -->
+    <div id="teacherModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div class="bg-gray-800 p-4 text-white flex justify-between items-center">
+                <h2 class="text-lg font-bold"><i class="fa-solid fa-user-gear mr-2"></i>教師管理後台</h2>
+                <button onclick="closeModal('teacherModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            
+            <div id="adminLogin" class="p-6">
+                <p class="text-sm text-gray-600 mb-4">請輸入教師管理密碼以解鎖權限</p>
+                <input type="password" id="adminPwd" placeholder="請輸入密碼" class="w-full p-3 border rounded-xl mb-4 focus:ring-2 focus:ring-gray-500 outline-none">
+                <button onclick="checkAdmin()" class="w-full bg-gray-800 text-white font-bold py-2 rounded-xl hover:bg-gray-700">驗證身分</button>
+            </div>
+
+            <div id="adminPanel" class="p-6 hidden space-y-4">
+                <div class="text-green-600 font-bold mb-4 border-b pb-2"><i class="fa-solid fa-check-circle mr-1"></i>已就緒，可發送指令至雲端</div>
+                <button onclick="clearAllNotes()" class="w-full bg-red-100 text-red-600 font-bold py-3 rounded-xl hover:bg-red-200 border border-red-200 transition">
+                    <i class="fa-solid fa-trash-can mr-2"></i>清空所有留言
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code 彈窗 -->
     <div id="qrModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-sm w-full"><h2 class="text-2xl font-bold text-gray-800 mb-2">邀請學生投稿</h2><p class="text-gray-500 mb-6 text-sm">請學生掃描條碼</p><div class="bg-gray-100 p-4 rounded-xl inline-block mb-6"><img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://a-kuei-cy.github.io/message-wall/" class="w-48 h-48"></div><button onclick="closeModal('qrModal')" class="w-full bg-gray-200 text-gray-800 font-bold py-2 rounded-xl">關閉</button></div></div>
 
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycby4qr-hd5bA_rsg0MU5qvXk1cGXcYS2HK_yh5G_kqNIS7ODQooUc12sA--dqbxDsBI4/exec";
         let notes = JSON.parse(localStorage.getItem('eduWallNotes')) || [];
-        let currentColor = 'bg-yellow-200';
-        let currentImageBase64 = ''; // 存放圖片壓縮後的 Base64
+        let currentColor = 'bg-green-400';
+        let currentImageBase64 = ''; 
+        let savedAdminPwd = ''; // 暫存密碼變數，安全驗證交由 GAS 後端處理
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function selectColor(color) { currentColor = color; }
 
-        function applyTheme(title, tag, desc) {
+        function applyTheme(title, tag, bgClass) {
             document.getElementById('headerTitle').innerText = title;
             document.getElementById('headerTag').innerText = tag;
-            document.getElementById('headerDesc').innerText = desc;
+            document.getElementById('bodyBg').className = `min-h-screen text-gray-800 transition-colors duration-500 ${bgClass}`;
             closeModal('themeModal');
         }
 
+        // 安全版教師驗證邏輯
         function checkAdmin() {
-            if(document.getElementById('adminPwd').value === 'xingjia123') {
-                document.getElementById('adminLogin').classList.add('hidden');
-                document.getElementById('adminPanel').classList.remove('hidden');
-                document.getElementById('adminPwd').value = ''; 
-            } else { alert('密碼錯誤！'); }
+            const inputPwd = document.getElementById('adminPwd').value;
+            if(!inputPwd) { alert('請輸入密碼！'); return; }
+            savedAdminPwd = inputPwd; 
+            document.getElementById('adminLogin').classList.add('hidden');
+            document.getElementById('adminPanel').classList.remove('hidden');
+            document.getElementById('adminPwd').value = ''; 
         }
+        
         function clearAllNotes() {
-            if(confirm('警告！確定要清空牆面上「所有」的留言嗎？無法復原喔！')) {
-                notes = [];
-                localStorage.setItem('eduWallNotes', JSON.stringify(notes));
-                renderWall(); closeModal('teacherModal');
-                syncToGAS('clear', {}); 
+            if(confirm('警告！確定要清空雲端與牆面上「所有」的留言嗎？無法復原喔！')) {
+                const formData = new URLSearchParams();
+                formData.append('action', 'clear');
+                formData.append('pwd', savedAdminPwd); // 傳送密碼給雲端檢查
+
+                fetch(GAS_URL, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === 'error') {
+                        alert('清空失敗：' + data.message); 
+                        document.getElementById('adminPanel').classList.add('hidden');
+                        document.getElementById('adminLogin').classList.remove('hidden');
+                    } else {
+                        notes = [];
+                        localStorage.setItem('eduWallNotes', JSON.stringify(notes));
+                        renderWall(); closeModal('teacherModal');
+                        alert('留言牆已成功清空！');
+                    }
+                }).catch(e => alert('連線失敗，請檢查網路狀態。'));
             }
         }
 
-        function updateStats() {
-            document.getElementById('updateTime').innerText = `更新時間：${new Date().toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'})}`;
-            document.getElementById('statPosts').innerText = notes.length;
-            document.getElementById('statLikes').innerText = notes.reduce((sum, note) => sum + (note.likes || 0), 0);
-        }
-
-        // 🖼️ 處理圖片預覽與自動壓縮 (降低大小以利傳輸)
         function previewImage(event) {
             const file = event.target.files[0];
             if (!file) return;
-            
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600; // 壓縮寬度
-                    let width = img.width;
-                    let height = img.height;
-                    
-                    if (width > MAX_WIDTH) {
-                        height = Math.round((height * MAX_WIDTH) / width);
-                        width = MAX_WIDTH;
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    currentImageBase64 = canvas.toDataURL('image/jpeg', 0.7); // 70% 畫質壓縮
-                    
+                    const MAX_WIDTH = 600; 
+                    let width = img.width, height = img.height;
+                    if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
+                    canvas.width = width; canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    currentImageBase64 = canvas.toDataURL('image/jpeg', 0.7); 
                     document.getElementById('imagePreview').src = currentImageBase64;
                     document.getElementById('imagePreviewContainer').classList.remove('hidden');
                 };
@@ -203,7 +228,6 @@
             reader.readAsDataURL(file);
         }
 
-        // 移除圖片
         function clearImage() {
             currentImageBase64 = '';
             document.getElementById('postImage').value = '';
@@ -211,40 +235,56 @@
             document.getElementById('imagePreview').src = '';
         }
 
+        // 🖼️ 全新 Padlet 風格渲染邏輯
         function renderWall() {
             const container = document.getElementById('wallContainer');
             container.innerHTML = '';
             if (notes.length === 0) {
-                container.innerHTML = `<div class="w-full text-center py-20 text-gray-400"><i class="fa-solid fa-note-sticky text-4xl mb-3 block"></i>目前還沒有便利貼，趕快搶頭香！</div>`;
-                updateStats(); return;
+                container.innerHTML = `<div class="w-full text-center py-20 text-gray-500 font-medium col-span-full"><i class="fa-solid fa-box-open text-4xl mb-3 block"></i>目前還沒有貼文，趕快搶頭香！</div>`;
+                return;
             }
 
             const displayNotes = [...notes].reverse(); 
             displayNotes.forEach(note => {
                 const card = document.createElement('div');
-                card.className = `masonry-item note-card ${note.color} p-5 rounded-2xl shadow-sm border border-black/5 relative overflow-hidden`;
+                // Padlet 風格的白色卡片，支援瀑布流
+                card.className = `masonry-item note-card bg-white p-4 rounded-xl shadow-sm border border-gray-200`;
                 
-                // 判斷是否有圖片，有則產生 img 標籤
-                const imgHTML = note.image ? `<img src="${note.image}" class="w-full rounded-xl mb-3 object-cover max-h-[300px] border border-black/5" loading="lazy">` : '';
+                const imgHTML = note.image ? `<img src="${note.image}" class="w-full rounded-lg mb-3 object-cover max-h-64 border border-gray-100" loading="lazy">` : '';
 
                 card.innerHTML = `
-                    <div class="absolute top-0 right-0 w-8 h-8 bg-black/5 rounded-bl-2xl"></div>
-                    <div class="text-xs text-gray-600/80 mb-3 flex justify-between items-center border-b border-black/5 pb-2">
-                        <span class="font-bold bg-white/50 px-2 py-1 rounded-md"><i class="fa-solid fa-user-graduate mr-1"></i>${note.classInfo || ''} ${note.name || '匿名'}</span>
-                        <span>${note.date}</span>
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-9 h-9 rounded-full ${note.color} flex items-center justify-center text-white text-sm shadow-sm">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-sm text-gray-900">${note.classInfo} ${note.name}</div>
+                            <div class="text-xs text-gray-500">${note.date}</div>
+                        </div>
+                        <button class="ml-auto text-gray-400 hover:text-gray-600 px-2"><i class="fa-solid fa-ellipsis-vertical"></i></button>
                     </div>
+                    
                     ${imgHTML}
-                    <h3 class="font-bold text-gray-900 text-lg mb-2 leading-tight">${note.title}</h3>
-                    <p class="text-gray-800 whitespace-pre-wrap text-[15px] leading-relaxed">${note.content}</p>
-                    <div class="mt-4 flex gap-2 justify-between items-center">
-                        <button onclick="likeNote('${note.id}')" class="text-red-500 font-bold text-sm bg-white/60 hover:bg-white px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1">
-                            <i class="fa-solid fa-heart"></i> <span id="like-${note.id}">${note.likes || 0}</span>
+                    
+                    <h3 class="font-bold text-gray-800 text-[16px] mb-1 leading-snug">${note.title}</h3>
+                    <p class="text-gray-700 text-[14px] whitespace-pre-wrap leading-relaxed mb-4">${note.content}</p>
+                    
+                    <div class="flex items-center gap-4 text-gray-500 text-sm mt-3 pt-3 border-t border-gray-100">
+                        <button onclick="likeNote('${note.id}')" class="flex items-center gap-1.5 hover:text-orange-500 transition font-medium">
+                            <i class="fa-solid fa-thumbs-up ${note.likes > 0 ? 'text-orange-400' : ''}"></i> 
+                            <span id="like-${note.id}">${note.likes || 0}</span>
                         </button>
+                        <div class="flex items-center gap-1.5 cursor-not-allowed opacity-50 font-medium">
+                            <i class="fa-regular fa-comment"></i> 0
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 text-xs text-gray-400 flex items-center gap-2 cursor-pointer hover:text-gray-700 transition">
+                        <i class="fa-solid fa-plus font-bold"></i> 新增留言
                     </div>
                 `;
                 container.appendChild(card);
             });
-            updateStats();
         }
 
         function submitPost() {
@@ -258,29 +298,26 @@
             const newNote = {
                 id: 'id_' + Date.now().toString(),
                 classInfo: classInfo,
-                name: name,
+                name: name || '匿名',
                 title: title,
                 content: content,
                 color: currentColor,
-                date: new Date().toLocaleDateString('zh-TW', {month: 'numeric', day: 'numeric'}),
+                date: '剛剛', // 仿照社群軟體顯示
                 likes: 0,
-                image: currentImageBase64 // 加入圖片資料
+                image: currentImageBase64 
             };
 
-            // 先顯示在本機畫面 (本機暫存 Base64 圖片)
             notes.push(newNote);
             localStorage.setItem('eduWallNotes', JSON.stringify(notes));
             renderWall();
             
-            // 清空表單
             document.getElementById('postClass').value = '';
             document.getElementById('postName').value = '';
             document.getElementById('postTitle').value = '';
             document.getElementById('postContent').value = '';
-            clearImage(); // 清空圖片區
+            clearImage(); 
             closeModal('postModal');
 
-            // 發送至雲端儲存
             syncToGAS('add', newNote);
         }
 
@@ -290,7 +327,11 @@
                 note.likes = (note.likes || 0) + 1;
                 document.getElementById(`like-${id}`).innerText = note.likes;
                 localStorage.setItem('eduWallNotes', JSON.stringify(notes));
-                updateStats();
+                
+                // 動態切換按讚圖示顏色
+                const btn = event.currentTarget.querySelector('.fa-thumbs-up');
+                if(btn) btn.classList.add('text-orange-400');
+
                 syncToGAS('like', { id: id, likes: note.likes });
             }
         }
@@ -300,18 +341,17 @@
             formData.append('action', action);
             if(action === 'add' || action === 'like') formData.append('id', data.id);
             if(action === 'add') {
-                formData.append('date', data.date);
+                formData.append('date', new Date().toLocaleDateString('zh-TW')); // 傳給雲端真實日期
                 formData.append('classInfo', data.classInfo);
                 formData.append('name', data.name);
                 formData.append('title', data.title);
                 formData.append('content', data.content);
                 formData.append('color', data.color);
-                if (data.image) formData.append('image', data.image); // 傳送壓縮後的圖片資料
+                if (data.image) formData.append('image', data.image); 
             }
             if(action === 'like') formData.append('likes', data.likes);
 
-            fetch(GAS_URL, { method: 'POST', body: formData })
-            .catch(e => console.log('背景上傳失敗:', e));
+            fetch(GAS_URL, { method: 'POST', body: formData }).catch(e => console.log('上傳失敗:', e));
         }
 
         function syncWithCloud() {
