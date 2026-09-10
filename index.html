@@ -3,228 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>興嘉國小 萬用互動學習便利貼牆</title>
+    <title>興嘉國小 互動學習便利貼牆</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #f3f4f6; }
-        .masonry { column-count: 1; column-gap: 1rem; }
+        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #fffbeb; background-image: radial-gradient(#d1d5db 1px, transparent 1px); background-size: 20px 20px; }
+        .masonry { column-count: 1; column-gap: 1.5rem; padding: 1rem; }
         @media (min-width: 640px) { .masonry { column-count: 2; } }
         @media (min-width: 768px) { .masonry { column-count: 3; } }
         @media (min-width: 1024px) { .masonry { column-count: 4; } }
-        .masonry-item { break-inside: avoid; margin-bottom: 1rem; display: inline-block; width: 100%; }
-        .note-card { transition: transform 0.2s; }
-        .note-card:hover { transform: translateY(-5px); }
+        .masonry-item { break-inside: avoid; margin-bottom: 1.5rem; display: inline-block; width: 100%; }
+        .note-card { transition: all 0.3s ease; }
+        .note-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
-<body class="min-h-screen bg-gray-100 transition-colors duration-500" id="bodyBg">
+<body class="min-h-screen text-gray-800" id="bodyBg">
 
     <!-- 頂部導覽列 -->
-    <header class="bg-white/90 backdrop-blur shadow-md sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <h1 class="text-xl font-bold text-gray-800 cursor-pointer" onclick="openThemeModal()">
-                <i class="fa-solid fa-chalkboard-user mr-2 text-blue-500"></i>
-                <span id="headerTitle">興嘉國小 晨讀心得牆</span>
-            </h1>
-            <div class="flex gap-2">
-                <button onclick="syncWithCloud()" class="bg-green-100 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-200 transition">
-                    <i class="fa-solid fa-rotate mr-1"></i>同步
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white text-xl shadow-md">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">嘉義市興嘉國小</span>
+                    <h1 class="text-xl font-bold mt-0.5" id="headerTitle">晨讀心得分享牆 📖 ✏️</h1>
+                </div>
+            </div>
+            <div class="flex gap-2 items-center">
+                <div class="bg-gray-100 p-1 rounded-lg flex text-sm font-medium border border-gray-200">
+                    <button class="px-3 py-1 bg-white shadow-sm rounded-md"><i class="fa-solid fa-table-columns mr-1"></i>瀑布流</button>
+                    <button class="px-3 py-1 text-gray-500 hover:text-gray-700"><i class="fa-solid fa-hand mr-1"></i>自由拖曳</button>
+                </div>
+                <button onclick="openModal('themeModal')" class="bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-amber-200 transition">
+                    <i class="fa-solid fa-palette mr-1"></i>切換主題與節慶
                 </button>
-                <button onclick="openThemeModal()" class="bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-200 transition">
-                    <i class="fa-solid fa-palette mr-1"></i>主題
+                <button onclick="openModal('qrModal')" class="bg-white text-gray-600 border border-gray-200 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-qrcode mr-1"></i>QR 碼
                 </button>
-                <button onclick="openPostModal()" class="bg-blue-500 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-600 shadow-sm transition">
-                    <i class="fa-solid fa-plus mr-1"></i>投稿
+                <button onclick="syncWithCloud()" id="syncBtn" class="bg-blue-50 text-blue-600 border border-blue-100 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-blue-100 transition">
+                    <i class="fa-solid fa-rotate mr-1"></i>雲端同步
+                </button>
+                <button class="bg-gray-800 text-white px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-gray-700 transition">
+                    <i class="fa-solid fa-user-gear mr-1"></i>教師管理
+                </button>
+                <button onclick="openModal('postModal')" class="bg-orange-500 text-white px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-orange-600 shadow-md transition transform hover:scale-105">
+                    <i class="fa-solid fa-plus mr-1"></i>我要投稿
                 </button>
             </div>
         </div>
     </header>
 
+    <!-- 活動資訊與統計橫幅 -->
+    <div class="bg-amber-50/90 border-b border-amber-200 backdrop-blur-sm">
+        <div class="max-w-[1400px] mx-auto px-4 py-4 flex justify-between items-center">
+            <div>
+                <div class="flex items-center gap-2 mb-2 text-sm text-gray-500">
+                    <span class="bg-orange-500 text-white text-xs px-2 py-0.5 rounded font-bold">閱讀推廣</span>
+                    <i class="fa-regular fa-clock"></i> <span id="updateTime">更新時間：載入中...</span>
+                </div>
+                <p class="text-gray-700 font-medium" id="headerDesc">歡迎興嘉國小的同學們！讀完一本好書後，請寫下 50 字心得與喜愛的一句話，並拍照上傳與全班分享喔！</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 flex gap-6 text-center min-w-[300px]">
+                <div class="flex-1 border-r border-gray-100">
+                    <div class="text-2xl font-black text-orange-500" id="statPosts">0</div>
+                    <div class="text-xs text-gray-500 mt-1">投稿便利貼</div>
+                </div>
+                <div class="flex-1 border-r border-gray-100">
+                    <div class="text-2xl font-black text-pink-500" id="statLikes">0</div>
+                    <div class="text-xs text-gray-500 mt-1">獲得讚數</div>
+                </div>
+                <div class="flex-1">
+                    <div class="text-2xl font-black text-blue-500">0</div>
+                    <div class="text-xs text-gray-500 mt-1">互動迴響</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 留言牆主要區域 -->
-    <main class="max-w-7xl mx-auto px-4 py-8">
+    <main class="max-w-[1400px] mx-auto py-6">
         <div id="wallContainer" class="masonry">
-            <!-- 卡片會由 JS 動態生成在這裡 -->
+            <!-- 載入中動畫 -->
+            <div class="text-center w-full py-10 text-gray-500" id="loadingMsg">
+                <i class="fa-solid fa-spinner fa-spin text-3xl mb-3 text-orange-400"></i>
+                <p>正在從雲端載入便利貼...</p>
+            </div>
         </div>
     </main>
 
-    <!-- 投稿彈窗 (已修復 ID 問題) -->
-    <div id="postModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-            <div class="bg-blue-500 p-4 text-white flex justify-between items-center">
+    <!-- 🌟【精準修復】投稿彈窗 (加入 id="postModal") -->
+    <div id="postModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all">
+            <div class="bg-gradient-to-r from-orange-500 to-amber-500 p-4 text-white flex justify-between items-center">
                 <h2 class="text-lg font-bold"><i class="fa-solid fa-pen-to-square mr-2"></i>新增便利貼</h2>
-                <button onclick="closePostModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <button onclick="closeModal('postModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div class="p-5 space-y-4">
+            <div class="p-6 space-y-4">
                 <div class="flex gap-3">
-                    <input type="text" id="postClass" placeholder="班級" class="w-1/3 p-2 border rounded-lg focus:ring-2 focus:ring-blue-300 outline-none">
-                    <input type="text" id="postName" placeholder="姓名/暱稱" class="w-2/3 p-2 border rounded-lg focus:ring-2 focus:ring-blue-300 outline-none">
+                    <input type="text" id="postClass" placeholder="班級 (例: 六年一班)" class="w-2/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 outline-none transition">
+                    <input type="text" id="postName" placeholder="姓名/暱稱" class="w-3/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 outline-none transition">
                 </div>
-                <input type="text" id="postTitle" placeholder="標題" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-300 outline-none">
-                <textarea id="postContent" rows="4" placeholder="寫下你的想法..." class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-300 outline-none"></textarea>
-                <div class="flex gap-2">
-                    <div class="w-8 h-8 rounded-full bg-yellow-200 cursor-pointer border-2 border-transparent hover:border-gray-400" onclick="selectColor('bg-yellow-200')"></div>
-                    <div class="w-8 h-8 rounded-full bg-pink-200 cursor-pointer border-2 border-transparent hover:border-gray-400" onclick="selectColor('bg-pink-200')"></div>
-                    <div class="w-8 h-8 rounded-full bg-blue-200 cursor-pointer border-2 border-transparent hover:border-gray-400" onclick="selectColor('bg-blue-200')"></div>
-                    <div class="w-8 h-8 rounded-full bg-green-200 cursor-pointer border-2 border-transparent hover:border-gray-400" onclick="selectColor('bg-green-200')"></div>
+                <input type="text" id="postTitle" placeholder="給這篇心得一個標題吧！" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 outline-none transition font-bold">
+                <textarea id="postContent" rows="5" placeholder="寫下你的想法..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 outline-none transition resize-none"></textarea>
+                
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">選擇便利貼顏色</label>
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 rounded-full bg-yellow-200 cursor-pointer border-4 border-white shadow ring-2 ring-transparent hover:ring-yellow-400" onclick="selectColor('bg-yellow-200')"></div>
+                        <div class="w-10 h-10 rounded-full bg-pink-200 cursor-pointer border-4 border-white shadow ring-2 ring-transparent hover:ring-pink-400" onclick="selectColor('bg-pink-200')"></div>
+                        <div class="w-10 h-10 rounded-full bg-blue-200 cursor-pointer border-4 border-white shadow ring-2 ring-transparent hover:ring-blue-400" onclick="selectColor('bg-blue-200')"></div>
+                        <div class="w-10 h-10 rounded-full bg-green-200 cursor-pointer border-4 border-white shadow ring-2 ring-transparent hover:ring-green-400" onclick="selectColor('bg-green-200')"></div>
+                        <div class="w-10 h-10 rounded-full bg-orange-200 cursor-pointer border-4 border-white shadow ring-2 ring-transparent hover:ring-orange-400" onclick="selectColor('bg-orange-200')"></div>
+                    </div>
                 </div>
-                <button onclick="submitPost()" class="w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600 transition">送出投稿</button>
+                
+                <button onclick="submitPost()" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3 rounded-xl hover:shadow-lg transition transform hover:-translate-y-0.5 mt-2">
+                    🚀 送出投稿
+                </button>
             </div>
         </div>
     </div>
 
     <!-- 主題切換彈窗 -->
-    <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
-            <div class="bg-amber-500 p-4 text-white flex justify-between items-center">
-                <h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>切換主題與節慶</h2>
-                <button onclick="closeThemeModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+    <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden">
+            <div class="bg-amber-600 p-4 text-white flex justify-between items-center">
+                <h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>切換主題與節慶範本</h2>
+                <button onclick="closeModal('themeModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div class="p-5 grid grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto">
-                <button onclick="applyTheme('晨讀心得分享', 'bg-gray-100')" class="p-4 border rounded-xl hover:bg-gray-50 text-left">
-                    <div class="text-2xl mb-2">📚</div><div class="font-bold">晨讀心得牆</div>
+            <div class="p-6 grid grid-cols-2 md:grid-cols-3 gap-4">
+                <button class="p-4 border-2 border-amber-200 bg-amber-50 rounded-xl hover:bg-amber-100 text-left transition">
+                    <div class="text-3xl mb-2">📚</div><div class="font-bold text-gray-800">晨讀心得牆</div>
+                    <div class="text-xs text-gray-500 mt-1">閱讀推廣與心得分享</div>
                 </button>
-                <button onclick="applyTheme('教師節感恩牆', 'bg-orange-50')" class="p-4 border rounded-xl hover:bg-orange-50 text-left">
-                    <div class="text-2xl mb-2">🍎</div><div class="font-bold">教師節敬師</div>
+                <button class="p-4 border border-gray-200 rounded-xl hover:bg-orange-50 text-left transition">
+                    <div class="text-3xl mb-2">🍎</div><div class="font-bold text-gray-800">教師節敬師</div>
+                    <div class="text-xs text-gray-500 mt-1">感恩老師的話語</div>
                 </button>
-                <button onclick="applyTheme('母親節感恩牆', 'bg-pink-50')" class="p-4 border rounded-xl hover:bg-pink-50 text-left">
-                    <div class="text-2xl mb-2">🌸</div><div class="font-bold">母親節感恩</div>
-                </button>
-                <button onclick="applyTheme('畢業季祝福', 'bg-blue-50')" class="p-4 border rounded-xl hover:bg-blue-50 text-left">
-                    <div class="text-2xl mb-2">🎓</div><div class="font-bold">畢業季祝福</div>
+                <button class="p-4 border border-gray-200 rounded-xl hover:bg-pink-50 text-left transition">
+                    <div class="text-3xl mb-2">🌸</div><div class="font-bold text-gray-800">母親節感恩</div>
+                    <div class="text-xs text-gray-500 mt-1">想對媽媽說的話</div>
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- QR Code 彈窗 -->
+    <div id="qrModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-sm w-full">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">邀請學生投稿</h2>
+            <p class="text-gray-500 mb-6 text-sm">請學生使用平板或手機掃描下方條碼</p>
+            <div class="bg-gray-100 p-4 rounded-xl inline-block mb-6">
+                <!-- 預設假圖，未來可接 API 產生真實 QR -->
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://a-kuei-cy.github.io/message-wall/" alt="QR Code" class="w-48 h-48">
+            </div>
+            <button onclick="closeModal('qrModal')" class="w-full bg-gray-200 text-gray-800 font-bold py-2 rounded-xl hover:bg-gray-300 transition">關閉</button>
+        </div>
+    </div>
+
     <script>
-        // 您的 Google Apps Script 專屬網址
+        // --- 核心設定 ---
         const GAS_URL = "https://script.google.com/macros/s/AKfycby4qr-hd5bA_rsg0MU5qvXk1cGXcYS2HK_yh5G_kqNIS7ODQooUc12sA--dqbxDsBI4/exec";
-        
         let notes = JSON.parse(localStorage.getItem('eduWallNotes')) || [];
         let currentColor = 'bg-yellow-200';
 
-        // 彈窗控制邏輯 (核心修復區)
-        function openPostModal() { document.getElementById('postModal').classList.remove('hidden'); }
-        function closePostModal() { document.getElementById('postModal').classList.add('hidden'); }
-        function openThemeModal() { document.getElementById('themeModal').classList.remove('hidden'); }
-        function closeThemeModal() { document.getElementById('themeModal').classList.add('hidden'); }
-
-        function selectColor(color) { currentColor = color; }
-
-        function applyTheme(title, bgColorClass) {
-            document.getElementById('headerTitle').innerText = '興嘉國小 ' + title;
-            document.getElementById('bodyBg').className = `min-h-screen transition-colors duration-500 ${bgColorClass}`;
-            closeThemeModal();
+        // --- 介面與彈窗控制 ---
+        function openModal(id) { 
+            const modal = document.getElementById(id);
+            if(modal) modal.classList.remove('hidden'); 
+        }
+        function closeModal(id) { 
+            const modal = document.getElementById(id);
+            if(modal) modal.classList.add('hidden'); 
+        }
+        function selectColor(color) { 
+            currentColor = color; 
         }
 
-        // 渲染留言牆
+        // --- 時間與統計更新 ---
+        function updateStats() {
+            document.getElementById('updateTime').innerText = `更新時間：${new Date().toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'})}`;
+            document.getElementById('statPosts').innerText = notes.length;
+            const totalLikes = notes.reduce((sum, note) => sum + (note.likes || 0), 0);
+            document.getElementById('statLikes').innerText = totalLikes;
+        }
+
+        // --- 渲染便利貼牆 ---
         function renderWall() {
             const container = document.getElementById('wallContainer');
             container.innerHTML = '';
-            notes.reverse().forEach(note => {
+            
+            if (notes.length === 0) {
+                container.innerHTML = `<div class="w-full text-center py-20 text-gray-400 font-medium"><i class="fa-solid fa-note-sticky text-4xl mb-3 block text-gray-300"></i>目前還沒有便利貼，趕快搶頭香！</div>`;
+                updateStats();
+                return;
+            }
+
+            // 複製並反轉陣列，讓最新的在上面
+            const displayNotes = [...notes].reverse();
+            
+            displayNotes.forEach(note => {
                 const card = document.createElement('div');
-                card.className = `masonry-item note-card ${note.color} p-4 rounded-xl shadow-sm border border-black/5`;
+                card.className = `masonry-item note-card ${note.color} p-5 rounded-2xl shadow-sm border border-black/5 relative overflow-hidden group`;
+                // 卡片裝飾摺角
+                const fold = `<div class="absolute top-0 right-0 w-8 h-8 bg-black/5 rounded-bl-2xl"></div>`;
+                
                 card.innerHTML = `
-                    <div class="text-xs text-gray-500 mb-1 flex justify-between">
-                        <span>${note.classInfo} ${note.name}</span>
+                    ${fold}
+                    <div class="text-xs text-gray-600/80 mb-2 flex justify-between items-center border-b border-black/5 pb-2">
+                        <span class="font-bold bg-white/40 px-2 py-0.5 rounded-md"><i class="fa-solid fa-user-graduate mr-1"></i>${note.classInfo || ''} ${note.name || '匿名'}</span>
                         <span>${note.date}</span>
                     </div>
-                    <h3 class="font-bold text-gray-800 mb-2">${note.title}</h3>
-                    <p class="text-gray-700 whitespace-pre-wrap text-sm">${note.content}</p>
-                    <div class="mt-4 flex gap-2">
-                        <button onclick="likeNote('${note.id}')" class="text-red-500 text-sm bg-white/50 px-2 py-1 rounded-full hover:bg-white/80">
-                            ❤️ ${note.likes || 0}
+                    <h3 class="font-bold text-gray-900 text-lg mb-2 leading-tight">${note.title}</h3>
+                    <p class="text-gray-800 whitespace-pre-wrap text-[15px] leading-relaxed">${note.content}</p>
+                    <div class="mt-4 flex gap-2 justify-between items-center">
+                        <button onclick="likeNote('${note.id}')" class="text-red-500 font-bold text-sm bg-white/60 hover:bg-white px-3 py-1.5 rounded-full transition shadow-sm flex items-center gap-1 transform hover:scale-105">
+                            <i class="fa-solid fa-heart"></i> <span id="like-${note.id}">${note.likes || 0}</span>
                         </button>
                     </div>
                 `;
                 container.appendChild(card);
             });
-            notes.reverse(); // 恢復原始順序
+            updateStats();
         }
 
-        // 新增投稿
+        // --- 投稿功能 ---
         function submitPost() {
             const classInfo = document.getElementById('postClass').value.trim();
-            const name = document.getElementById('postName').value.trim() || '匿名';
+            const name = document.getElementById('postName').value.trim();
             const title = document.getElementById('postTitle').value.trim();
             const content = document.getElementById('postContent').value.trim();
 
-            if (!content) { alert('請填寫內容！'); return; }
+            if (!content) { alert('請至少填寫心得內容唷！'); return; }
 
             const newNote = {
-                id: Date.now().toString(),
+                id: 'id_' + Date.now().toString(),
                 classInfo: classInfo,
                 name: name,
                 title: title,
                 content: content,
                 color: currentColor,
-                date: new Date().toLocaleDateString('zh-TW'),
+                date: new Date().toLocaleDateString('zh-TW', {month: 'numeric', day: 'numeric'}),
                 likes: 0
             };
 
             notes.push(newNote);
-            saveData();
+            localStorage.setItem('eduWallNotes', JSON.stringify(notes));
             renderWall();
             
-            // 清空表單
+            // 清空並關閉
             document.getElementById('postClass').value = '';
             document.getElementById('postName').value = '';
             document.getElementById('postTitle').value = '';
             document.getElementById('postContent').value = '';
-            closePostModal();
+            closeModal('postModal');
 
-            // 背景同步至 Google 試算表
+            // 背景寫入 Google 試算表
             syncToGAS('add', newNote);
         }
 
-        // 按讚功能
+        // --- 按讚功能 ---
         function likeNote(id) {
             const note = notes.find(n => n.id === id);
             if(note) {
                 note.likes = (note.likes || 0) + 1;
-                saveData();
-                renderWall();
+                document.getElementById(`like-${id}`).innerText = note.likes;
+                localStorage.setItem('eduWallNotes', JSON.stringify(notes));
+                updateStats();
                 syncToGAS('like', { id: id, likes: note.likes });
             }
         }
 
-        // 儲存至本機
-        function saveData() { localStorage.setItem('eduWallNotes', JSON.stringify(notes)); }
-
-        // 背景同步至 GAS (單向寫入測試)
+        // --- Google 試算表同步機制 ---
         function syncToGAS(action, data) {
             fetch(GAS_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: action, data: data })
-            }).catch(e => console.log('背景同步失敗:', e));
+            }).catch(e => console.log('背景上傳GAS失敗:', e));
         }
 
-        // 點擊同步按鈕 (讀取雲端)
         function syncWithCloud() {
-            const btn = document.querySelector('button[onclick="syncWithCloud()"]');
+            const btn = document.getElementById('syncBtn');
+            const originalHTML = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>同步中';
+            
             fetch(GAS_URL)
                 .then(res => res.json())
                 .then(data => {
                     if (data && data.length > 0) {
                         notes = data;
-                        saveData();
+                        localStorage.setItem('eduWallNotes', JSON.stringify(notes));
                         renderWall();
                     }
-                    btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>已同步';
-                    setTimeout(() => btn.innerHTML = '<i class="fa-solid fa-rotate mr-1"></i>同步', 2000);
+                    btn.innerHTML = '<i class="fa-solid fa-check text-green-600 mr-1"></i>已同步';
+                    setTimeout(() => btn.innerHTML = originalHTML, 2000);
                 })
                 .catch(err => {
-                    console.log(err);
-                    btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i>失敗';
-                    setTimeout(() => btn.innerHTML = '<i class="fa-solid fa-rotate mr-1"></i>同步', 2000);
+                    console.log('拉取GAS失敗:', err);
+                    btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-500 mr-1"></i>失敗';
+                    setTimeout(() => btn.innerHTML = originalHTML, 2000);
+                    // 即使失敗也先渲染本地資料
+                    renderWall();
                 });
         }
 
-        // 初始載入
-        renderWall();
+        // --- 初始化啟動 ---
+        // 網頁載入時自動嘗試從雲端抓取最新資料
+        document.addEventListener('DOMContentLoaded', () => {
+            syncWithCloud(); 
+        });
+
     </script>
 </body>
 </html>
