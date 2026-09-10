@@ -7,16 +7,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #dbeafe; /* 預設淡藍色背景 */ transition: background-color 0.5s ease; }
-        
-        /* 多欄位瀑布流核心設定 */
+        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #dbeafe; transition: background-color 0.5s ease; }
         .masonry { column-count: 1; column-gap: 1.5rem; padding: 1rem; }
         @media (min-width: 640px) { .masonry { column-count: 2; } }
         @media (min-width: 800px) { .masonry { column-count: 3; } }
         @media (min-width: 1100px) { .masonry { column-count: 4; } }
         @media (min-width: 1400px) { .masonry { column-count: 5; } }
-        
-        .masonry-item { break-inside: avoid; margin-bottom: 1.5rem; display: block; width: 100%; }
+        .masonry-item { break-inside: avoid; margin-bottom: 1.5rem; display: block; width: 100%; position: relative;}
         .note-card { transition: all 0.2s ease; }
         .note-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
     </style>
@@ -36,11 +33,12 @@
                 </div>
             </div>
             <div class="flex gap-2 items-center">
+                <!-- 教師管理模式標籤 (登入後顯示) -->
+                <span id="adminBadge" class="hidden bg-red-100 text-red-600 px-2 py-1.5 rounded-lg text-sm font-bold border border-red-200">
+                    <i class="fa-solid fa-unlock-keyhole mr-1"></i>管理模式開啟
+                </span>
                 <button onclick="openModal('themeModal')" class="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-gray-200 transition">
                     <i class="fa-solid fa-palette mr-1"></i>主題
-                </button>
-                <button onclick="openModal('qrModal')" class="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-gray-200 transition hidden sm:block">
-                    <i class="fa-solid fa-qrcode mr-1"></i>分享
                 </button>
                 <button onclick="syncWithCloud()" id="syncBtn" class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-blue-100 transition">
                     <i class="fa-solid fa-rotate mr-1"></i>同步
@@ -55,14 +53,11 @@
         </div>
     </header>
 
-    <!-- 留言牆主要區域 -->
     <main class="max-w-[1600px] mx-auto py-6">
-        <div id="wallContainer" class="masonry">
-            <!-- 卡片會動態生成於此 -->
-        </div>
+        <div id="wallContainer" class="masonry"></div>
     </main>
 
-    <!-- 投稿彈窗 (支援圖片與自動壓縮) -->
+    <!-- 投稿彈窗 -->
     <div id="postModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all max-h-[90vh] overflow-y-auto">
             <div class="bg-gradient-to-r from-orange-500 to-amber-500 p-4 text-white flex justify-between items-center sticky top-0 z-10">
@@ -71,22 +66,18 @@
             </div>
             <div class="p-6 space-y-4">
                 <div class="flex gap-3">
-                    <input type="text" id="postClass" placeholder="班級 (例: 六年一班)" class="w-2/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 outline-none transition">
-                    <input type="text" id="postName" placeholder="姓名/暱稱" class="w-3/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 outline-none transition">
+                    <input type="text" id="postClass" placeholder="班級 (例: 六年一班)" class="w-2/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-400">
+                    <input type="text" id="postName" placeholder="姓名/暱稱" class="w-3/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-400">
                 </div>
-                <input type="text" id="postTitle" placeholder="給這篇貼文一個標題吧！" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 outline-none transition font-bold">
-                <textarea id="postContent" rows="4" placeholder="寫下你的想法..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 outline-none transition resize-none"></textarea>
+                <input type="text" id="postTitle" placeholder="給這篇貼文一個標題吧！" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-400 font-bold">
+                <textarea id="postContent" rows="4" placeholder="寫下你的想法..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-400 resize-none"></textarea>
                 
-                <!-- 照片上傳區塊 -->
                 <div class="bg-orange-50/50 p-4 rounded-xl border border-orange-100">
                     <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-camera mr-1 text-orange-500"></i>上傳照片 (選填)</label>
-                    <input type="file" id="postImage" accept="image/*" onchange="previewImage(event)" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600 cursor-pointer transition">
-                    
+                    <input type="file" id="postImage" accept="image/*" onchange="previewImage(event)" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600 cursor-pointer">
                     <div id="imagePreviewContainer" class="mt-3 hidden relative">
                         <img id="imagePreview" class="w-full max-h-48 rounded-lg object-cover border border-gray-200">
-                        <button onclick="clearImage()" class="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full shadow hover:bg-red-600 flex items-center justify-center">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        <button onclick="clearImage()" class="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full shadow hover:bg-red-600 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                 </div>
 
@@ -100,67 +91,64 @@
                         <div class="w-10 h-10 rounded-full bg-blue-400 cursor-pointer border-4 border-white shadow hover:ring-2 hover:ring-blue-500" onclick="selectColor('bg-blue-400')"></div>
                     </div>
                 </div>
-                
-                <button onclick="submitPost()" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3 rounded-xl hover:shadow-lg transition mt-2">
-                    🚀 送出貼文
-                </button>
+                <button onclick="submitPost()" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3 rounded-xl hover:shadow-lg transition">🚀 送出貼文</button>
             </div>
         </div>
     </div>
 
-    <!-- 主題切換彈窗 -->
-    <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden">
-            <div class="bg-amber-600 p-4 text-white flex justify-between items-center">
-                <h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>切換主題與背景</h2>
-                <button onclick="closeModal('themeModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+    <!-- 教師編修彈窗 -->
+    <div id="editModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all">
+            <div class="bg-gray-800 p-4 text-white flex justify-between items-center">
+                <h2 class="text-lg font-bold"><i class="fa-solid fa-pen-ruler mr-2"></i>教師編修貼文</h2>
+                <button onclick="closeModal('editModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button onclick="applyTheme('晨讀心得分享', '閱讀推廣', 'bg-blue-100')" class="p-4 border-2 border-transparent bg-blue-50 rounded-xl hover:border-blue-400 text-left transition">
-                    <div class="text-3xl mb-2">📚</div><div class="font-bold text-gray-800">晨讀心得牆</div>
-                </button>
-                <button onclick="applyTheme('教師節敬師', '敬師活動', 'bg-orange-100')" class="p-4 border-2 border-transparent bg-orange-50 rounded-xl hover:border-orange-400 text-left transition">
-                    <div class="text-3xl mb-2">🍎</div><div class="font-bold text-gray-800">教師節敬師</div>
-                </button>
-                <button onclick="applyTheme('母親節感恩', '溫馨感恩', 'bg-pink-100')" class="p-4 border-2 border-transparent bg-pink-50 rounded-xl hover:border-pink-400 text-left transition">
-                    <div class="text-3xl mb-2">🌸</div><div class="font-bold text-gray-800">母親節感恩</div>
-                </button>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="editId">
+                <div class="flex gap-3">
+                    <input type="text" id="editClass" placeholder="班級" class="w-2/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-500">
+                    <input type="text" id="editName" placeholder="姓名" class="w-3/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-500">
+                </div>
+                <input type="text" id="editTitle" placeholder="標題" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-500 font-bold">
+                <textarea id="editContent" rows="5" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-500 resize-none"></textarea>
+                <button onclick="submitEdit()" class="w-full bg-gray-800 text-white font-bold py-3 rounded-xl hover:bg-gray-700 transition">💾 儲存修改</button>
             </div>
         </div>
     </div>
 
-    <!-- 安全版教師管理彈窗 (密碼不寫死在前端) -->
+    <!-- 教師管理登入彈窗 -->
     <div id="teacherModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
             <div class="bg-gray-800 p-4 text-white flex justify-between items-center">
                 <h2 class="text-lg font-bold"><i class="fa-solid fa-user-gear mr-2"></i>教師管理後台</h2>
                 <button onclick="closeModal('teacherModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            
             <div id="adminLogin" class="p-6">
-                <p class="text-sm text-gray-600 mb-4">請輸入教師管理密碼以解鎖權限</p>
-                <input type="password" id="adminPwd" placeholder="請輸入密碼" class="w-full p-3 border rounded-xl mb-4 focus:ring-2 focus:ring-gray-500 outline-none">
-                <button onclick="checkAdmin()" class="w-full bg-gray-800 text-white font-bold py-2 rounded-xl hover:bg-gray-700">驗證身分</button>
+                <p class="text-sm text-gray-600 mb-4">輸入密碼解鎖編修與刪除權限</p>
+                <input type="password" id="adminPwd" placeholder="請輸入密碼" class="w-full p-3 border rounded-xl mb-4 focus:outline-none focus:border-gray-500">
+                <button onclick="checkAdmin()" class="w-full bg-gray-800 text-white font-bold py-2 rounded-xl hover:bg-gray-700">驗證身分開啟管理模式</button>
             </div>
-
             <div id="adminPanel" class="p-6 hidden space-y-4">
-                <div class="text-green-600 font-bold mb-4 border-b pb-2"><i class="fa-solid fa-check-circle mr-1"></i>已就緒，可發送指令至雲端</div>
+                <div class="text-green-600 font-bold mb-4 border-b pb-2"><i class="fa-solid fa-check-circle mr-1"></i>管理模式已啟用</div>
+                <p class="text-sm text-gray-600 mb-2">現在您可以直接在牆面上修改或刪除單篇學生的留言。</p>
                 <button onclick="clearAllNotes()" class="w-full bg-red-100 text-red-600 font-bold py-3 rounded-xl hover:bg-red-200 border border-red-200 transition">
-                    <i class="fa-solid fa-trash-can mr-2"></i>清空所有留言
+                    <i class="fa-solid fa-dumpster-fire mr-2"></i>危險：清空整面留言牆
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- QR Code 彈窗 -->
-    <div id="qrModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-sm w-full"><h2 class="text-2xl font-bold text-gray-800 mb-2">邀請學生投稿</h2><p class="text-gray-500 mb-6 text-sm">請學生掃描條碼</p><div class="bg-gray-100 p-4 rounded-xl inline-block mb-6"><img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://a-kuei-cy.github.io/message-wall/" class="w-48 h-48"></div><button onclick="closeModal('qrModal')" class="w-full bg-gray-200 text-gray-800 font-bold py-2 rounded-xl">關閉</button></div></div>
+    <!-- 主題切換彈窗 -->
+    <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden"><div class="bg-amber-600 p-4 text-white flex justify-between items-center"><h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>切換主題與背景</h2><button onclick="closeModal('themeModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4"><button onclick="applyTheme('晨讀心得分享', '閱讀推廣', 'bg-blue-100')" class="p-4 border-2 border-transparent bg-blue-50 rounded-xl hover:border-blue-400 text-left transition"><div class="text-3xl mb-2">📚</div><div class="font-bold text-gray-800">晨讀心得牆</div></button><button onclick="applyTheme('教師節敬師', '敬師活動', 'bg-orange-100')" class="p-4 border-2 border-transparent bg-orange-50 rounded-xl hover:border-orange-400 text-left transition"><div class="text-3xl mb-2">🍎</div><div class="font-bold text-gray-800">教師節敬師</div></button><button onclick="applyTheme('母親節感恩', '溫馨感恩', 'bg-pink-100')" class="p-4 border-2 border-transparent bg-pink-50 rounded-xl hover:border-pink-400 text-left transition"><div class="text-3xl mb-2">🌸</div><div class="font-bold text-gray-800">母親節感恩</div></button></div></div></div>
 
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycby4qr-hd5bA_rsg0MU5qvXk1cGXcYS2HK_yh5G_kqNIS7ODQooUc12sA--dqbxDsBI4/exec";
         let notes = JSON.parse(localStorage.getItem('eduWallNotes')) || [];
         let currentColor = 'bg-green-400';
         let currentImageBase64 = ''; 
-        let savedAdminPwd = ''; // 暫存密碼變數，安全驗證交由 GAS 後端處理
+        
+        let isAdminLoggedIn = false; // 紀錄老師是否已經登入
+        let savedAdminPwd = ''; 
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
@@ -173,29 +161,104 @@
             closeModal('themeModal');
         }
 
-        // 安全版教師驗證邏輯
+        // --- 教師管理認證 ---
         function checkAdmin() {
             const inputPwd = document.getElementById('adminPwd').value;
             if(!inputPwd) { alert('請輸入密碼！'); return; }
             savedAdminPwd = inputPwd; 
+            isAdminLoggedIn = true; // 開啟管理模式
+            
             document.getElementById('adminLogin').classList.add('hidden');
             document.getElementById('adminPanel').classList.remove('hidden');
+            document.getElementById('adminBadge').classList.remove('hidden'); // 顯示頂部警告標籤
             document.getElementById('adminPwd').value = ''; 
+            
+            renderWall(); // 重新渲染牆面，顯示編輯刪除按鈕
+            closeModal('teacherModal');
         }
-        
+
+        function handleAdminError(message) {
+            alert('權限錯誤：' + message); 
+            isAdminLoggedIn = false;
+            savedAdminPwd = '';
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('adminLogin').classList.remove('hidden');
+            document.getElementById('adminBadge').classList.add('hidden');
+            renderWall(); // 隱藏按鈕
+        }
+
+        // --- 教師編修功能 ---
+        function openEditModal(id) {
+            const note = notes.find(n => n.id === id);
+            if(!note) return;
+            document.getElementById('editId').value = note.id;
+            document.getElementById('editClass').value = note.classInfo;
+            document.getElementById('editName').value = note.name;
+            document.getElementById('editTitle').value = note.title;
+            document.getElementById('editContent').value = note.content;
+            openModal('editModal');
+        }
+
+        function submitEdit() {
+            const id = document.getElementById('editId').value;
+            const note = notes.find(n => n.id === id);
+            if(!note) return;
+            
+            // 更新本地資料
+            note.classInfo = document.getElementById('editClass').value;
+            note.name = document.getElementById('editName').value;
+            note.title = document.getElementById('editTitle').value;
+            note.content = document.getElementById('editContent').value;
+            
+            localStorage.setItem('eduWallNotes', JSON.stringify(notes));
+            renderWall();
+            closeModal('editModal');
+
+            // 同步修改到雲端
+            const formData = new URLSearchParams();
+            formData.append('action', 'edit');
+            formData.append('pwd', savedAdminPwd);
+            formData.append('id', id);
+            formData.append('classInfo', note.classInfo);
+            formData.append('name', note.name);
+            formData.append('title', note.title);
+            formData.append('content', note.content);
+
+            fetch(GAS_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => { if(data.status === 'error') handleAdminError(data.message); });
+        }
+
+        // --- 教師刪除單篇功能 ---
+        function deleteSingleNote(id) {
+            if(confirm('確定要「刪除」這篇留言嗎？')) {
+                notes = notes.filter(n => n.id !== id);
+                localStorage.setItem('eduWallNotes', JSON.stringify(notes));
+                renderWall();
+
+                const formData = new URLSearchParams();
+                formData.append('action', 'deleteSingle');
+                formData.append('pwd', savedAdminPwd);
+                formData.append('id', id);
+
+                fetch(GAS_URL, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => { if(data.status === 'error') handleAdminError(data.message); });
+            }
+        }
+
+        // --- 教師清空全牆 ---
         function clearAllNotes() {
             if(confirm('警告！確定要清空雲端與牆面上「所有」的留言嗎？無法復原喔！')) {
                 const formData = new URLSearchParams();
                 formData.append('action', 'clear');
-                formData.append('pwd', savedAdminPwd); // 傳送密碼給雲端檢查
+                formData.append('pwd', savedAdminPwd);
 
                 fetch(GAS_URL, { method: 'POST', body: formData })
                 .then(res => res.json())
                 .then(data => {
                     if(data.status === 'error') {
-                        alert('清空失敗：' + data.message); 
-                        document.getElementById('adminPanel').classList.add('hidden');
-                        document.getElementById('adminLogin').classList.remove('hidden');
+                        handleAdminError(data.message);
                     } else {
                         notes = [];
                         localStorage.setItem('eduWallNotes', JSON.stringify(notes));
@@ -206,6 +269,7 @@
             }
         }
 
+        // 圖片上傳預覽處理
         function previewImage(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -214,9 +278,8 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600; 
                     let width = img.width, height = img.height;
-                    if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
+                    if (width > 600) { height = Math.round((height * 600) / width); width = 600; }
                     canvas.width = width; canvas.height = height;
                     canvas.getContext('2d').drawImage(img, 0, 0, width, height);
                     currentImageBase64 = canvas.toDataURL('image/jpeg', 0.7); 
@@ -232,10 +295,9 @@
             currentImageBase64 = '';
             document.getElementById('postImage').value = '';
             document.getElementById('imagePreviewContainer').classList.add('hidden');
-            document.getElementById('imagePreview').src = '';
         }
 
-        // 🖼️ 全新 Padlet 風格渲染邏輯
+        // 渲染牆面 (包含教師編輯按鈕)
         function renderWall() {
             const container = document.getElementById('wallContainer');
             container.innerHTML = '';
@@ -247,46 +309,48 @@
             const displayNotes = [...notes].reverse(); 
             displayNotes.forEach(note => {
                 const card = document.createElement('div');
-                // Padlet 風格的白色卡片，支援瀑布流
-                card.className = `masonry-item note-card bg-white p-4 rounded-xl shadow-sm border border-gray-200`;
+                card.className = `masonry-item note-card bg-white p-4 rounded-xl shadow-sm border border-gray-200 group`;
                 
+                // 如果是管理員，顯示編輯與刪除浮動按鈕
+                let adminButtons = '';
+                if (isAdminLoggedIn) {
+                    adminButtons = `
+                        <div class="absolute top-2 right-2 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="openEditModal('${note.id}')" class="bg-gray-800 text-white w-8 h-8 rounded-full shadow hover:bg-gray-700 flex items-center justify-center" title="編輯"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button onclick="deleteSingleNote('${note.id}')" class="bg-red-500 text-white w-8 h-8 rounded-full shadow hover:bg-red-600 flex items-center justify-center" title="刪除"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </div>
+                    `;
+                }
+
                 const imgHTML = note.image ? `<img src="${note.image}" class="w-full rounded-lg mb-3 object-cover max-h-64 border border-gray-100" loading="lazy">` : '';
 
                 card.innerHTML = `
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-9 h-9 rounded-full ${note.color} flex items-center justify-center text-white text-sm shadow-sm">
+                    ${adminButtons}
+                    <div class="flex items-center gap-3 mb-3 pr-10">
+                        <div class="w-9 h-9 rounded-full ${note.color} flex items-center justify-center text-white text-sm shadow-sm flex-shrink-0">
                             <i class="fa-solid fa-user-graduate"></i>
                         </div>
-                        <div>
-                            <div class="font-bold text-sm text-gray-900">${note.classInfo} ${note.name}</div>
+                        <div class="truncate">
+                            <div class="font-bold text-sm text-gray-900 truncate">${note.classInfo} ${note.name}</div>
                             <div class="text-xs text-gray-500">${note.date}</div>
                         </div>
-                        <button class="ml-auto text-gray-400 hover:text-gray-600 px-2"><i class="fa-solid fa-ellipsis-vertical"></i></button>
                     </div>
-                    
                     ${imgHTML}
-                    
-                    <h3 class="font-bold text-gray-800 text-[16px] mb-1 leading-snug">${note.title}</h3>
-                    <p class="text-gray-700 text-[14px] whitespace-pre-wrap leading-relaxed mb-4">${note.content}</p>
+                    <h3 class="font-bold text-gray-800 text-[16px] mb-1 leading-snug break-words">${note.title}</h3>
+                    <p class="text-gray-700 text-[14px] whitespace-pre-wrap leading-relaxed mb-4 break-words">${note.content}</p>
                     
                     <div class="flex items-center gap-4 text-gray-500 text-sm mt-3 pt-3 border-t border-gray-100">
-                        <button onclick="likeNote('${note.id}')" class="flex items-center gap-1.5 hover:text-orange-500 transition font-medium">
+                        <button onclick="likeNote('${note.id}', event)" class="flex items-center gap-1.5 hover:text-orange-500 transition font-medium">
                             <i class="fa-solid fa-thumbs-up ${note.likes > 0 ? 'text-orange-400' : ''}"></i> 
                             <span id="like-${note.id}">${note.likes || 0}</span>
                         </button>
-                        <div class="flex items-center gap-1.5 cursor-not-allowed opacity-50 font-medium">
-                            <i class="fa-regular fa-comment"></i> 0
-                        </div>
-                    </div>
-                    
-                    <div class="mt-3 text-xs text-gray-400 flex items-center gap-2 cursor-pointer hover:text-gray-700 transition">
-                        <i class="fa-solid fa-plus font-bold"></i> 新增留言
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
 
+        // 新增與按讚邏輯
         function submitPost() {
             const classInfo = document.getElementById('postClass').value.trim();
             const name = document.getElementById('postName').value.trim();
@@ -297,41 +361,31 @@
 
             const newNote = {
                 id: 'id_' + Date.now().toString(),
-                classInfo: classInfo,
-                name: name || '匿名',
-                title: title,
-                content: content,
-                color: currentColor,
-                date: '剛剛', // 仿照社群軟體顯示
-                likes: 0,
-                image: currentImageBase64 
+                classInfo: classInfo, name: name || '匿名', title: title, content: content,
+                color: currentColor, date: '剛剛', likes: 0, image: currentImageBase64 
             };
 
             notes.push(newNote);
             localStorage.setItem('eduWallNotes', JSON.stringify(notes));
             renderWall();
             
-            document.getElementById('postClass').value = '';
-            document.getElementById('postName').value = '';
-            document.getElementById('postTitle').value = '';
-            document.getElementById('postContent').value = '';
-            clearImage(); 
-            closeModal('postModal');
+            document.getElementById('postClass').value = ''; document.getElementById('postName').value = '';
+            document.getElementById('postTitle').value = ''; document.getElementById('postContent').value = '';
+            clearImage(); closeModal('postModal');
 
             syncToGAS('add', newNote);
         }
 
-        function likeNote(id) {
+        function likeNote(id, event) {
             const note = notes.find(n => n.id === id);
             if(note) {
                 note.likes = (note.likes || 0) + 1;
                 document.getElementById(`like-${id}`).innerText = note.likes;
                 localStorage.setItem('eduWallNotes', JSON.stringify(notes));
-                
-                // 動態切換按讚圖示顏色
-                const btn = event.currentTarget.querySelector('.fa-thumbs-up');
-                if(btn) btn.classList.add('text-orange-400');
-
+                if(event) {
+                    const btn = event.currentTarget.querySelector('.fa-thumbs-up');
+                    if(btn) btn.classList.add('text-orange-400');
+                }
                 syncToGAS('like', { id: id, likes: note.likes });
             }
         }
@@ -341,7 +395,7 @@
             formData.append('action', action);
             if(action === 'add' || action === 'like') formData.append('id', data.id);
             if(action === 'add') {
-                formData.append('date', new Date().toLocaleDateString('zh-TW')); // 傳給雲端真實日期
+                formData.append('date', new Date().toLocaleDateString('zh-TW')); 
                 formData.append('classInfo', data.classInfo);
                 formData.append('name', data.name);
                 formData.append('title', data.title);
@@ -351,7 +405,7 @@
             }
             if(action === 'like') formData.append('likes', data.likes);
 
-            fetch(GAS_URL, { method: 'POST', body: formData }).catch(e => console.log('上傳失敗:', e));
+            fetch(GAS_URL, { method: 'POST', body: formData });
         }
 
         function syncWithCloud() {
@@ -376,10 +430,7 @@
                 });
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            renderWall(); syncWithCloud(); 
-        });
-
+        document.addEventListener('DOMContentLoaded', () => { renderWall(); syncWithCloud(); });
     </script>
 </body>
 </html>
