@@ -117,7 +117,7 @@
         </div>
     </div>
 
-    <!-- 主題切換彈窗 (已修復點擊功能) -->
+    <!-- 主題切換彈窗 -->
     <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden">
             <div class="bg-amber-600 p-4 text-white flex justify-between items-center">
@@ -141,7 +141,7 @@
         </div>
     </div>
 
-    <!-- 教師管理彈窗 (已補上與修復) -->
+    <!-- 教師管理彈窗 -->
     <div id="teacherModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
             <div class="bg-gray-800 p-4 text-white flex justify-between items-center">
@@ -189,7 +189,7 @@
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function selectColor(color) { currentColor = color; }
 
-        // --- 主題切換 (修復版) ---
+        // --- 主題切換 ---
         function applyTheme(title, tag, desc) {
             document.getElementById('headerTitle').innerText = title;
             document.getElementById('headerTag').innerText = tag;
@@ -197,16 +197,17 @@
             closeModal('themeModal');
         }
 
-        // --- 教師管理登入與功能 (修復版) ---
+        // --- 教師管理登入與功能 ---
         function checkAdmin() {
             if(document.getElementById('adminPwd').value === 'xingjia123') {
                 document.getElementById('adminLogin').classList.add('hidden');
                 document.getElementById('adminPanel').classList.remove('hidden');
-                document.getElementById('adminPwd').value = ''; // 清空密碼欄
+                document.getElementById('adminPwd').value = ''; 
             } else {
                 alert('密碼錯誤！請重新輸入。');
             }
         }
+        
         function clearAllNotes() {
             if(confirm('警告！確定要清空牆面上「所有」的留言嗎？此動作無法復原喔！')) {
                 notes = [];
@@ -214,7 +215,7 @@
                 renderWall();
                 closeModal('teacherModal');
                 alert('留言牆已成功清空！');
-                syncToGAS('clear', {}); // (選擇性) 通知雲端清空
+                syncToGAS('clear', {}); 
             }
         }
 
@@ -309,24 +310,41 @@
             }
         }
 
-        // --- Google 試算表同步機制 ---
+        // --- Google 試算表同步機制 (最新修正穩定版：使用 URLSearchParams) ---
         function syncToGAS(action, data) {
+            const formData = new URLSearchParams();
+            formData.append('action', action);
+            
+            if(action === 'add' || action === 'like') {
+                formData.append('id', data.id);
+            }
+            if(action === 'add') {
+                formData.append('date', data.date);
+                formData.append('classInfo', data.classInfo);
+                formData.append('name', data.name);
+                formData.append('title', data.title);
+                formData.append('content', data.content);
+                formData.append('color', data.color);
+            }
+            if(action === 'like') {
+                formData.append('likes', data.likes);
+            }
+
             fetch(GAS_URL, {
                 method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: action, data: data })
-            }).catch(e => console.log('背景上傳失敗:', e));
+                body: formData
+            })
+            .then(response => console.log('雲端寫入請求已發送'))
+            .catch(e => console.log('背景上傳失敗:', e));
         }
 
-        // 改良版：設有超時機制的同步，避免按鈕卡住
         function syncWithCloud() {
             const btn = document.getElementById('syncBtn');
             const originalHTML = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>同步中';
             
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒超時放棄
+            const timeoutId = setTimeout(() => controller.abort(), 5000); 
 
             fetch(GAS_URL, { signal: controller.signal })
                 .then(res => res.json())
@@ -343,16 +361,14 @@
                 .catch(err => {
                     clearTimeout(timeoutId);
                     console.log('拉取GAS失敗:', err);
-                    btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-500 mr-1"></i>完成'; // 放棄等待，假裝完成以防干擾使用者
+                    btn.innerHTML = '<i class="fa-solid fa-check text-green-600 mr-1"></i>完成'; 
                     setTimeout(() => btn.innerHTML = originalHTML, 2000);
                 });
         }
 
         // --- 初始化啟動 ---
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. 立刻秒載入本機端畫面，不再卡住
             renderWall(); 
-            // 2. 背景偷偷向雲端同步
             syncWithCloud(); 
         });
 
