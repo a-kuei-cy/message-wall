@@ -165,7 +165,7 @@
     <div id="teacherManageModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[80vh]"><div class="bg-blue-600 p-4 text-white flex justify-between items-center"><h2 class="text-lg font-bold"><i class="fa-solid fa-users-gear mr-2"></i>教師帳號管理</h2><button onclick="closeModal('teacherManageModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 flex-1 overflow-y-auto"><div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6"><h3 class="font-bold text-blue-800 mb-3 text-sm">新增一位教師</h3><div class="flex gap-2 mb-2"><input type="text" id="newTName" placeholder="教師姓名" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400"><input type="text" id="newTPwd" placeholder="設定密碼" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400"></div><button id="addTBtn" onclick="addTeacher()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 text-sm transition">新增帳號</button></div><h3 class="font-bold text-gray-700 mb-3 border-b pb-2">目前已授權的教師名單</h3><div id="teacherListContainer" class="space-y-2"><div class="text-center text-gray-400 text-sm py-4">載入中...</div></div></div></div></div>
 
     <!-- 主題切換彈窗 -->
-    <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden"><div class="bg-amber-600 p-4 text-white flex justify-between items-center"><h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>設定全站主題</h2><button onclick="closeModal('themeModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4"><button onclick="applyTheme('晨讀心得分享牆 📖 ✏️', '閱讀推廣', '歡迎興嘉國小的同學們！讀完一本好書後，請寫下 50 字心得與喜愛的一句話，並拍照上傳與全班分享喔！', 'bg-blue-50')" class="p-4 border-2 border-transparent bg-amber-50 rounded-xl hover:border-amber-400 text-left transition"><div class="text-3xl mb-2">📚</div><div class="font-bold text-gray-800">晨讀心得牆</div></button><button onclick="applyTheme('教師節敬師感恩牆 🍎', '敬師活動', '大聲說出你的感謝！請寫下對老師的感恩與祝福。', 'bg-orange-50')" class="p-4 border-2 border-transparent bg-orange-50 rounded-xl hover:border-orange-400 text-left transition"><div class="text-3xl mb-2">🍎</div><div class="font-bold text-gray-800">教師節敬師</div></button><button onclick="applyTheme('母親節感恩牆 🌸', '感恩溫馨', '母親節快樂！留下你想對媽媽說的心裡話，給媽媽一個驚喜吧。', 'bg-pink-50')" class="p-4 border-2 border-transparent bg-pink-50 rounded-xl hover:border-pink-400 text-left transition"><div class="text-3xl mb-2">🌸</div><div class="font-bold text-gray-800">母親節感恩</div></button></div></div></div>
+    <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden"><div class="bg-amber-600 p-4 text-white flex justify-between items-center"><h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>設定全站主題 (總管專用)</h2><button onclick="closeModal('themeModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4"><button onclick="applyTheme('晨讀心得分享牆 📖 ✏️', '閱讀推廣', '歡迎興嘉國小的同學們！讀完一本好書後，請寫下 50 字心得與喜愛的一句話，並拍照上傳與全班分享喔！', 'bg-blue-50')" class="p-4 border-2 border-transparent bg-amber-50 rounded-xl hover:border-amber-400 text-left transition"><div class="text-3xl mb-2">📚</div><div class="font-bold text-gray-800">晨讀心得牆</div></button><button onclick="applyTheme('教師節敬師感恩牆 🍎', '敬師活動', '大聲說出你的感謝！請寫下對老師的感恩與祝福。', 'bg-orange-50')" class="p-4 border-2 border-transparent bg-orange-50 rounded-xl hover:border-orange-400 text-left transition"><div class="text-3xl mb-2">🍎</div><div class="font-bold text-gray-800">教師節敬師</div></button><button onclick="applyTheme('母親節感恩牆 🌸', '感恩溫馨', '母親節快樂！留下你想對媽媽說的心裡話，給媽媽一個驚喜吧。', 'bg-pink-50')" class="p-4 border-2 border-transparent bg-pink-50 rounded-xl hover:border-pink-400 text-left transition"><div class="text-3xl mb-2">🌸</div><div class="font-bold text-gray-800">母親節感恩</div></button></div></div></div>
 
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycby4qr-hd5bA_rsg0MU5qvXk1cGXcYS2HK_yh5G_kqNIS7ODQooUc12sA--dqbxDsBI4/exec";
@@ -407,6 +407,10 @@
         function renderWall() {
             const container = document.getElementById('wallContainer');
             container.innerHTML = '';
+            
+            // 🌟 防重複按讚機制：讀取此台裝置已經按過讚的清單
+            let likedList = JSON.parse(localStorage.getItem('eduWallLiked')) || [];
+
             if (notes.length === 0) {
                 container.innerHTML = `<div class="w-full text-center py-20 text-gray-500 font-medium col-span-full"><i class="fa-solid fa-box-open text-4xl mb-3 block text-gray-300"></i>目前還沒有便利貼，趕快搶頭香！</div>`;
                 updateStats(); return;
@@ -429,6 +433,11 @@
 
                 const imgHTML = note.image ? `<img src="${note.image}" class="w-full rounded-lg mb-3 object-cover max-h-64 border border-gray-100" loading="lazy">` : '';
 
+                // 檢查是否已按過讚，若有則改變按鈕樣式
+                const isLiked = likedList.includes(note.id);
+                const thumbColor = isLiked ? 'text-orange-500' : (note.likes > 0 ? 'text-orange-400' : '');
+                const cursorStyle = isLiked ? 'cursor-not-allowed opacity-80' : 'hover:text-orange-500';
+
                 card.innerHTML = `
                     ${adminButtons}
                     <div class="flex items-center gap-3 mb-3 pr-10">
@@ -439,8 +448,8 @@
                     <h3 class="font-bold text-gray-800 text-[16px] mb-1 leading-snug break-words">${note.title}</h3>
                     <p class="text-gray-700 text-[14px] whitespace-pre-wrap leading-relaxed mb-4 break-words">${note.content}</p>
                     <div class="flex items-center gap-4 text-gray-500 text-sm mt-3 pt-3 border-t border-gray-100">
-                        <button onclick="likeNote('${note.id}', event)" class="flex items-center gap-1.5 hover:text-orange-500 transition font-medium">
-                            <i class="fa-solid fa-thumbs-up ${note.likes > 0 ? 'text-orange-400' : ''}"></i> <span id="like-${note.id}">${note.likes || 0}</span>
+                        <button onclick="likeNote('${note.id}', event)" class="flex items-center gap-1.5 transition font-medium ${cursorStyle}">
+                            <i class="fa-solid fa-thumbs-up ${thumbColor}"></i> <span id="like-${note.id}">${note.likes || 0}</span>
                         </button>
                     </div>
                 `;
@@ -473,14 +482,28 @@
         }
 
         function likeNote(id, event) {
+            // 🌟 防重複按讚機制：從 localStorage 取得清單檢查
+            let likedList = JSON.parse(localStorage.getItem('eduWallLiked')) || [];
+            if (likedList.includes(id)) {
+                alert('您已經對這篇貼文按過讚囉！');
+                return;
+            }
+
             const note = notes.find(n => n.id === id);
             if(note) {
                 note.likes = (note.likes || 0) + 1;
                 document.getElementById(`like-${id}`).innerText = note.likes;
                 localStorage.setItem('eduWallNotes', JSON.stringify(notes));
+                
+                // 記錄這台裝置已對此貼文按過讚
+                likedList.push(id);
+                localStorage.setItem('eduWallLiked', JSON.stringify(likedList));
+
                 if(event) {
                     const btn = event.currentTarget.querySelector('.fa-thumbs-up');
-                    if(btn) btn.classList.add('text-orange-400');
+                    if(btn) btn.classList.add('text-orange-500');
+                    event.currentTarget.classList.add('cursor-not-allowed', 'opacity-80');
+                    event.currentTarget.classList.remove('hover:text-orange-500');
                 }
                 syncToGAS('like', { id: id, likes: note.likes }); updateStats();
             }
