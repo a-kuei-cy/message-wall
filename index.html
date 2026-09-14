@@ -16,6 +16,10 @@
         .masonry-item { break-inside: avoid; margin-bottom: 1.5rem; display: block; width: 100%; position: relative; }
         .note-card { transition: all 0.2s ease; }
         .note-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        
+        /* 抽籤結果動畫 */
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .winner-card { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; }
     </style>
 </head>
 <body class="min-h-screen text-gray-800 bg-blue-50" id="bodyBg">
@@ -40,9 +44,7 @@
                     <button class="px-3 py-1 bg-white shadow-sm rounded-md"><i class="fa-solid fa-table-columns mr-1"></i>瀑布流</button>
                 </div>
                 
-                <!-- 主題按鈕 (預設隱藏，僅最高總管登入後可見) -->
                 <button id="themeBtn" onclick="openModal('themeModal')" class="hidden bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-amber-200 transition sm:block"><i class="fa-solid fa-palette mr-1"></i>設定全站主題</button>
-                
                 <button onclick="syncWithCloud()" id="syncBtn" class="bg-blue-50 text-blue-600 border border-blue-100 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-blue-100 transition"><i class="fa-solid fa-rotate mr-1"></i>同步</button>
                 <button id="teacherBtn" onclick="openModal('teacherModal')" class="bg-gray-800 text-white px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-gray-700 transition hidden sm:block"><i class="fa-solid fa-user-gear mr-1"></i>管理</button>
                 <button onclick="openModal('postModal')" class="bg-orange-500 text-white px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-orange-600 shadow-md transition transform hover:scale-105"><i class="fa-solid fa-plus mr-1"></i>我要投稿</button>
@@ -126,6 +128,10 @@
             <div id="adminPanel" class="p-6 hidden space-y-4">
                 <div class="text-green-600 font-bold border-b pb-3 mb-2 flex items-center"><i class="fa-solid fa-check-circle mr-2 text-xl"></i>已成功登入管理模式</div>
                 
+                <!-- 總管專屬按鈕：抽籤與帳號管理 -->
+                <button id="superAdminDrawBtn" onclick="openModal('drawModal')" class="hidden w-full bg-yellow-100 text-yellow-700 font-bold py-3 rounded-xl hover:bg-yellow-200 border border-yellow-200 transition">
+                    <i class="fa-solid fa-gift mr-2"></i>幸運抽籤 (總管專用)
+                </button>
                 <button id="superAdminBtn" onclick="openTeacherManage()" class="hidden w-full bg-blue-100 text-blue-700 font-bold py-3 rounded-xl hover:bg-blue-200 border border-blue-200 transition">
                     <i class="fa-solid fa-users-gear mr-2"></i>管理教師名單 (總管專用)
                 </button>
@@ -137,30 +143,36 @@
         </div>
     </div>
 
-    <!-- 總管專屬：教師帳號管理彈窗 -->
-    <div id="teacherManageModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[80vh]">
-            <div class="bg-blue-600 p-4 text-white flex justify-between items-center">
-                <h2 class="text-lg font-bold"><i class="fa-solid fa-users-gear mr-2"></i>教師帳號管理</h2>
-                <button onclick="closeModal('teacherManageModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+    <!-- 🎁 總管專屬：幸運抽籤彈窗 -->
+    <div id="drawModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden text-center">
+            <div class="bg-yellow-500 p-4 text-white flex justify-between items-center">
+                <h2 class="text-lg font-bold"><i class="fa-solid fa-gift mr-2"></i>幸運抽籤</h2>
+                <button onclick="closeModal('drawModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div class="p-6 flex-1 overflow-y-auto">
-                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6">
-                    <h3 class="font-bold text-blue-800 mb-3 text-sm">新增一位教師</h3>
-                    <div class="flex gap-2 mb-2">
-                        <input type="text" id="newTName" placeholder="教師姓名" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400">
-                        <input type="text" id="newTPwd" placeholder="設定密碼" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400">
-                    </div>
-                    <button id="addTBtn" onclick="addTeacher()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 text-sm transition">新增帳號</button>
+            <div class="p-6">
+                <p class="text-gray-600 mb-4 font-medium">系統將自動過濾重複發表者，從所有參與名單中隨機抽出幸運兒！</p>
+                <div class="flex items-center justify-center gap-3 mb-6 bg-yellow-50 p-4 rounded-xl border border-yellow-100">
+                    <label class="font-bold text-gray-700">設定抽出人數：</label>
+                    <input type="number" id="drawCount" value="1" min="1" class="w-20 p-2 border border-yellow-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-yellow-400 font-bold text-lg">
                 </div>
+                <button onclick="startDraw()" class="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-bold py-3 rounded-xl hover:shadow-lg transition transform hover:-translate-y-0.5 text-lg">
+                    🎉 開始抽籤
+                </button>
                 
-                <h3 class="font-bold text-gray-700 mb-3 border-b pb-2">目前已授權的教師名單</h3>
-                <div id="teacherListContainer" class="space-y-2">
-                    <div class="text-center text-gray-400 text-sm py-4">載入中...</div>
+                <!-- 抽籤結果區 -->
+                <div id="drawResultArea" class="mt-6 hidden">
+                    <h3 class="text-lg font-bold text-gray-800 border-b-2 border-yellow-200 pb-2 mb-4">🏆 恭喜以下得獎者</h3>
+                    <div id="drawResultList" class="space-y-3">
+                        <!-- 結果由 JS 產生 -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- 總管專屬：教師帳號管理彈窗 -->
+    <div id="teacherManageModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[80vh]"><div class="bg-blue-600 p-4 text-white flex justify-between items-center"><h2 class="text-lg font-bold"><i class="fa-solid fa-users-gear mr-2"></i>教師帳號管理</h2><button onclick="closeModal('teacherManageModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 flex-1 overflow-y-auto"><div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6"><h3 class="font-bold text-blue-800 mb-3 text-sm">新增一位教師</h3><div class="flex gap-2 mb-2"><input type="text" id="newTName" placeholder="教師姓名" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400"><input type="text" id="newTPwd" placeholder="設定密碼" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400"></div><button id="addTBtn" onclick="addTeacher()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 text-sm transition">新增帳號</button></div><h3 class="font-bold text-gray-700 mb-3 border-b pb-2">目前已授權的教師名單</h3><div id="teacherListContainer" class="space-y-2"><div class="text-center text-gray-400 text-sm py-4">載入中...</div></div></div></div></div>
 
     <!-- 總管專屬：全站主題切換彈窗 -->
     <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden"><div class="bg-amber-600 p-4 text-white flex justify-between items-center"><h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>設定全站主題 (總管專用)</h2><button onclick="closeModal('themeModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4"><button onclick="applyTheme('晨讀心得分享牆 📖 ✏️', '閱讀推廣', '歡迎興嘉國小的同學們！讀完一本好書後，請寫下 50 字心得與喜愛的一句話，並拍照上傳與全班分享喔！', 'bg-blue-50')" class="p-4 border-2 border-transparent bg-amber-50 rounded-xl hover:border-amber-400 text-left transition"><div class="text-3xl mb-2">📚</div><div class="font-bold text-gray-800">晨讀心得牆</div></button><button onclick="applyTheme('教師節敬師感恩牆 🍎', '敬師活動', '大聲說出你的感謝！請寫下對老師的感恩與祝福。', 'bg-orange-50')" class="p-4 border-2 border-transparent bg-orange-50 rounded-xl hover:border-orange-400 text-left transition"><div class="text-3xl mb-2">🍎</div><div class="font-bold text-gray-800">教師節敬師</div></button><button onclick="applyTheme('母親節感恩牆 🌸', '感恩溫馨', '母親節快樂！留下你想對媽媽說的心裡話，給媽媽一個驚喜吧。', 'bg-pink-50')" class="p-4 border-2 border-transparent bg-pink-50 rounded-xl hover:border-pink-400 text-left transition"><div class="text-3xl mb-2">🌸</div><div class="font-bold text-gray-800">母親節感恩</div></button></div></div></div>
@@ -196,25 +208,14 @@
         }
 
         function applyTheme(title, tag, desc, bgClass) {
-            // 1. 改變本機畫面
             applyLocalTheme(title, tag, desc, bgClass);
             closeModal('themeModal');
-            
-            // 2. 如果是總管，直接將主題存入雲端
             if (savedRole === 'superadmin') {
                 const formData = new URLSearchParams();
-                formData.append('action', 'saveTheme');
-                formData.append('pwd', savedAdminPwd);
-                formData.append('title', title);
-                formData.append('tag', tag);
-                formData.append('desc', desc);
-                formData.append('bgClass', bgClass);
-                
-                fetch(GAS_URL, { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(data => {
+                formData.append('action', 'saveTheme'); formData.append('pwd', savedAdminPwd);
+                formData.append('title', title); formData.append('tag', tag); formData.append('desc', desc); formData.append('bgClass', bgClass);
+                fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => {
                     if (data.status === 'success') alert('全站主題已成功同步至雲端！');
-                    else alert('主題儲存失敗，請重試。');
                 });
             }
         }
@@ -255,37 +256,74 @@
                         roleBadge.innerHTML = '<i class="fa-solid fa-crown mr-1"></i>最高總管';
                         roleBadge.className = 'bg-purple-100 text-purple-700 px-2 py-1.5 rounded-lg text-sm font-bold border border-purple-200 hidden sm:block';
                         document.getElementById('superAdminBtn').classList.remove('hidden'); 
-                        document.getElementById('themeBtn').classList.remove('hidden'); // 解鎖主題按鈕
+                        document.getElementById('themeBtn').classList.remove('hidden'); 
+                        document.getElementById('superAdminDrawBtn').classList.remove('hidden'); // 解鎖抽籤按鈕
                     } else {
                         roleBadge.innerHTML = '<i class="fa-solid fa-user-check mr-1"></i>教師模式';
                         roleBadge.className = 'bg-green-100 text-green-700 px-2 py-1.5 rounded-lg text-sm font-bold border border-green-200 hidden sm:block';
                         document.getElementById('superAdminBtn').classList.add('hidden'); 
+                        document.getElementById('superAdminDrawBtn').classList.add('hidden');
                     }
                     
                     document.getElementById('adminPwd').value = ''; 
                     renderWall(); 
                 } else alert(data.message);
             })
-            .catch(e => {
-                btn.innerHTML = ogText; btn.disabled = false; alert('連線失敗，請檢查網路狀態。');
-            });
+            .catch(e => { btn.innerHTML = ogText; btn.disabled = false; alert('連線失敗，請檢查網路狀態。'); });
         }
         
         function logoutAdmin() {
-            isAdminLoggedIn = false;
-            savedAdminPwd = '';
-            savedRole = '';
-            
+            isAdminLoggedIn = false; savedAdminPwd = ''; savedRole = '';
             document.getElementById('adminControls').classList.add('hidden');
-            document.getElementById('themeBtn').classList.add('hidden'); // 隱藏主題按鈕
+            document.getElementById('themeBtn').classList.add('hidden'); 
             document.getElementById('teacherBtn').classList.remove('hidden');
-            
             document.getElementById('adminPanel').classList.add('hidden');
             document.getElementById('adminLogin').classList.remove('hidden');
             document.getElementById('superAdminBtn').classList.add('hidden');
+            document.getElementById('superAdminDrawBtn').classList.add('hidden');
+            renderWall(); alert('已成功登出管理模式！');
+        }
+
+        // ==========================================
+        // 🎁 總管專屬功能：幸運抽籤
+        // ==========================================
+        function startDraw() {
+            const count = parseInt(document.getElementById('drawCount').value) || 1;
+            if (notes.length === 0) return alert('目前還沒有人投稿喔！');
             
-            renderWall(); 
-            alert('已成功登出管理模式！');
+            // 取得不重複的投稿者名單 (班級 + 姓名防呆)
+            const uniqueUsers = [...new Set(notes.map(n => `${n.classInfo} ${n.name}`))];
+            
+            if (count > uniqueUsers.length) {
+                alert(`設定的抽出人數 (${count}) 不能大於實際的投稿人數 (${uniqueUsers.length} 人) 喔！`);
+                return;
+            }
+            
+            const resultArea = document.getElementById('drawResultArea');
+            const resultList = document.getElementById('drawResultList');
+            resultArea.classList.remove('hidden');
+            
+            // 轉動動畫
+            resultList.innerHTML = '<div class="py-4"><i class="fa-solid fa-spinner fa-spin text-4xl text-yellow-500 mb-2"></i><p class="text-gray-500 font-bold">電腦隨機挑選中...</p></div>';
+            
+            setTimeout(() => {
+                // Fisher-Yates 隨機洗牌演算法
+                let shuffled = [...uniqueUsers];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                
+                // 取出前 N 名得獎者
+                const winners = shuffled.slice(0, count);
+                
+                // 渲染結果加上動畫 class
+                resultList.innerHTML = winners.map((w, index) => `
+                    <div class="winner-card bg-orange-50 text-orange-700 p-3 rounded-lg border border-orange-200 shadow-sm flex items-center justify-center font-bold text-xl" style="animation-delay: ${index * 0.2}s">
+                        <i class="fa-solid fa-crown text-yellow-500 mr-2 text-2xl"></i> ${w}
+                    </div>
+                `).join('');
+            }, 1500); // 延遲 1.5 秒開獎
         }
 
         // ==========================================
@@ -514,22 +552,14 @@
             fetch(GAS_URL, { method: 'POST', body: formData });
         }
 
-        // 改良版同步：同時拉取留言與全站主題
         function syncWithCloud() {
             const btn = document.getElementById('syncBtn');
             const originalHTML = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>同步中';
-            
             fetch(GAS_URL).then(res => res.json()).then(data => {
                 if(data.status === 'success') {
-                    // 更新全站主題
                     if(data.theme) applyLocalTheme(data.theme.title, data.theme.tag, data.theme.desc, data.theme.bgClass);
-                    // 更新留言卡片
-                    if(data.notes) {
-                        notes = data.notes;
-                        localStorage.setItem('eduWallNotes', JSON.stringify(notes));
-                        renderWall();
-                    }
+                    if(data.notes) { notes = data.notes; localStorage.setItem('eduWallNotes', JSON.stringify(notes)); renderWall(); }
                 }
                 btn.innerHTML = '<i class="fa-solid fa-check text-green-600 mr-1"></i>已同步';
                 setTimeout(() => btn.innerHTML = originalHTML, 2000);
