@@ -18,7 +18,7 @@
         .note-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
-<body class="min-h-screen text-gray-800" id="bodyBg">
+<body class="min-h-screen text-gray-800 bg-blue-50" id="bodyBg">
 
     <header class="bg-white/95 backdrop-blur shadow-sm sticky top-0 z-40">
         <div class="max-w-[1600px] mx-auto px-4 h-16 flex items-center justify-between">
@@ -26,7 +26,7 @@
                 <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white text-xl shadow-md"><i class="fa-solid fa-chalkboard-user"></i></div>
                 <div>
                     <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">嘉義市興嘉國小</span>
-                    <h1 class="text-xl font-bold mt-0.5 text-gray-800" id="headerTitle">晨讀心得分享牆 📖 ✏️</h1>
+                    <h1 class="text-xl font-bold mt-0.5 text-gray-800" id="headerTitle">載入中...</h1>
                 </div>
             </div>
             <div class="flex gap-2 items-center">
@@ -39,7 +39,10 @@
                 <div class="bg-gray-100 p-1 rounded-lg flex text-sm font-medium border border-gray-200 hidden lg:flex">
                     <button class="px-3 py-1 bg-white shadow-sm rounded-md"><i class="fa-solid fa-table-columns mr-1"></i>瀑布流</button>
                 </div>
-                <button onclick="openModal('themeModal')" class="bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-amber-200 transition hidden sm:block"><i class="fa-solid fa-palette mr-1"></i>主題</button>
+                
+                <!-- 主題按鈕 (預設隱藏，僅最高總管登入後可見) -->
+                <button id="themeBtn" onclick="openModal('themeModal')" class="hidden bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-amber-200 transition sm:block"><i class="fa-solid fa-palette mr-1"></i>設定全站主題</button>
+                
                 <button onclick="syncWithCloud()" id="syncBtn" class="bg-blue-50 text-blue-600 border border-blue-100 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-blue-100 transition"><i class="fa-solid fa-rotate mr-1"></i>同步</button>
                 <button id="teacherBtn" onclick="openModal('teacherModal')" class="bg-gray-800 text-white px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-gray-700 transition hidden sm:block"><i class="fa-solid fa-user-gear mr-1"></i>管理</button>
                 <button onclick="openModal('postModal')" class="bg-orange-500 text-white px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-orange-600 shadow-md transition transform hover:scale-105"><i class="fa-solid fa-plus mr-1"></i>我要投稿</button>
@@ -51,10 +54,10 @@
         <div class="max-w-[1600px] mx-auto px-4 py-4 flex justify-between items-center flex-wrap gap-4">
             <div>
                 <div class="flex items-center gap-2 mb-2 text-sm text-gray-500">
-                    <span id="headerTag" class="bg-orange-500 text-white text-xs px-2 py-0.5 rounded font-bold">閱讀推廣</span>
+                    <span id="headerTag" class="bg-orange-500 text-white text-xs px-2 py-0.5 rounded font-bold">載入中</span>
                     <i class="fa-regular fa-clock"></i> <span id="updateTime">更新時間：載入中...</span>
                 </div>
-                <p class="text-gray-700 font-medium" id="headerDesc">歡迎興嘉國小的同學們！讀完一本好書後，請寫下 50 字心得與喜愛的一句話，並拍照上傳與全班分享喔！</p>
+                <p class="text-gray-700 font-medium" id="headerDesc">正在連接雲端資料庫...</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 flex gap-6 text-center min-w-[300px]">
                 <div class="flex-1 border-r border-gray-100"><div class="text-2xl font-black text-orange-500" id="statPosts">0</div><div class="text-xs text-gray-500 mt-1">投稿數</div></div>
@@ -123,7 +126,6 @@
             <div id="adminPanel" class="p-6 hidden space-y-4">
                 <div class="text-green-600 font-bold border-b pb-3 mb-2 flex items-center"><i class="fa-solid fa-check-circle mr-2 text-xl"></i>已成功登入管理模式</div>
                 
-                <!-- 總管專屬按鈕 -->
                 <button id="superAdminBtn" onclick="openTeacherManage()" class="hidden w-full bg-blue-100 text-blue-700 font-bold py-3 rounded-xl hover:bg-blue-200 border border-blue-200 transition">
                     <i class="fa-solid fa-users-gear mr-2"></i>管理教師名單 (總管專用)
                 </button>
@@ -160,33 +162,61 @@
         </div>
     </div>
 
-    <!-- 主題切換彈窗 -->
-    <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden"><div class="bg-amber-600 p-4 text-white flex justify-between items-center"><h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>切換主題與背景</h2><button onclick="closeModal('themeModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4"><button onclick="applyTheme('晨讀心得分享牆 📖 ✏️', '閱讀推廣', '歡迎興嘉國小的同學們！讀完一本好書後，請寫下 50 字心得與喜愛的一句話，並拍照上傳與全班分享喔！')" class="p-4 border-2 border-transparent bg-amber-50 rounded-xl hover:border-amber-400 text-left transition"><div class="text-3xl mb-2">📚</div><div class="font-bold text-gray-800">晨讀心得牆</div></button><button onclick="applyTheme('教師節敬師感恩牆 🍎', '敬師活動', '大聲說出你的感謝！請寫下對老師的感恩與祝福。')" class="p-4 border-2 border-transparent bg-orange-50 rounded-xl hover:border-orange-400 text-left transition"><div class="text-3xl mb-2">🍎</div><div class="font-bold text-gray-800">教師節敬師</div></button><button onclick="applyTheme('母親節感恩牆 🌸', '感恩溫馨', '母親節快樂！留下你想對媽媽說的心裡話，給媽媽一個驚喜吧。')" class="p-4 border-2 border-transparent bg-pink-50 rounded-xl hover:border-pink-400 text-left transition"><div class="text-3xl mb-2">🌸</div><div class="font-bold text-gray-800">母親節感恩</div></button></div></div></div>
+    <!-- 總管專屬：全站主題切換彈窗 -->
+    <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden"><div class="bg-amber-600 p-4 text-white flex justify-between items-center"><h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>設定全站主題 (總管專用)</h2><button onclick="closeModal('themeModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4"><button onclick="applyTheme('晨讀心得分享牆 📖 ✏️', '閱讀推廣', '歡迎興嘉國小的同學們！讀完一本好書後，請寫下 50 字心得與喜愛的一句話，並拍照上傳與全班分享喔！', 'bg-blue-50')" class="p-4 border-2 border-transparent bg-amber-50 rounded-xl hover:border-amber-400 text-left transition"><div class="text-3xl mb-2">📚</div><div class="font-bold text-gray-800">晨讀心得牆</div></button><button onclick="applyTheme('教師節敬師感恩牆 🍎', '敬師活動', '大聲說出你的感謝！請寫下對老師的感恩與祝福。', 'bg-orange-50')" class="p-4 border-2 border-transparent bg-orange-50 rounded-xl hover:border-orange-400 text-left transition"><div class="text-3xl mb-2">🍎</div><div class="font-bold text-gray-800">教師節敬師</div></button><button onclick="applyTheme('母親節感恩牆 🌸', '感恩溫馨', '母親節快樂！留下你想對媽媽說的心裡話，給媽媽一個驚喜吧。', 'bg-pink-50')" class="p-4 border-2 border-transparent bg-pink-50 rounded-xl hover:border-pink-400 text-left transition"><div class="text-3xl mb-2">🌸</div><div class="font-bold text-gray-800">母親節感恩</div></button></div></div></div>
 
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycby4qr-hd5bA_rsg0MU5qvXk1cGXcYS2HK_yh5G_kqNIS7ODQooUc12sA--dqbxDsBI4/exec";
-        let notes = JSON.parse(localStorage.getItem('eduWallNotes')) || [];
+        let notes = [];
         let currentColor = 'bg-green-400';
         let currentImageBase64 = ''; 
         
         let isAdminLoggedIn = false; 
         let savedAdminPwd = ''; 
+        let savedRole = '';
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function selectColor(color) { currentColor = color; }
 
-        function applyTheme(title, tag, desc) {
-            document.getElementById('headerTitle').innerText = title;
-            document.getElementById('headerTag').innerText = tag;
-            document.getElementById('headerDesc').innerText = desc;
-            closeModal('themeModal');
-        }
-
         function updateStats() {
             document.getElementById('updateTime').innerText = `更新時間：${new Date().toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'})}`;
             document.getElementById('statPosts').innerText = notes.length;
             document.getElementById('statLikes').innerText = notes.reduce((sum, note) => sum + (note.likes || 0), 0);
+        }
+
+        // ==========================================
+        // 主題控制與雲端同步
+        // ==========================================
+        function applyLocalTheme(title, tag, desc, bgClass) {
+            document.getElementById('headerTitle').innerText = title;
+            document.getElementById('headerTag').innerText = tag;
+            document.getElementById('headerDesc').innerText = desc;
+            document.getElementById('bodyBg').className = `min-h-screen text-gray-800 transition-colors duration-500 ${bgClass}`;
+        }
+
+        function applyTheme(title, tag, desc, bgClass) {
+            // 1. 改變本機畫面
+            applyLocalTheme(title, tag, desc, bgClass);
+            closeModal('themeModal');
+            
+            // 2. 如果是總管，直接將主題存入雲端
+            if (savedRole === 'superadmin') {
+                const formData = new URLSearchParams();
+                formData.append('action', 'saveTheme');
+                formData.append('pwd', savedAdminPwd);
+                formData.append('title', title);
+                formData.append('tag', tag);
+                formData.append('desc', desc);
+                formData.append('bgClass', bgClass);
+                
+                fetch(GAS_URL, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') alert('全站主題已成功同步至雲端！');
+                    else alert('主題儲存失敗，請重試。');
+                });
+            }
         }
 
         // ==========================================
@@ -213,10 +243,10 @@
                 if(data.status === 'success') {
                     savedAdminPwd = inputPwd; 
                     isAdminLoggedIn = true; 
+                    savedRole = data.role;
                     
                     document.getElementById('adminLogin').classList.add('hidden');
                     document.getElementById('adminPanel').classList.remove('hidden');
-                    
                     document.getElementById('teacherBtn').classList.add('hidden');
                     document.getElementById('adminControls').classList.remove('hidden');
                     
@@ -224,31 +254,30 @@
                     if (data.role === 'superadmin') {
                         roleBadge.innerHTML = '<i class="fa-solid fa-crown mr-1"></i>最高總管';
                         roleBadge.className = 'bg-purple-100 text-purple-700 px-2 py-1.5 rounded-lg text-sm font-bold border border-purple-200 hidden sm:block';
-                        document.getElementById('superAdminBtn').classList.remove('hidden'); // 顯示管理按鈕
+                        document.getElementById('superAdminBtn').classList.remove('hidden'); 
+                        document.getElementById('themeBtn').classList.remove('hidden'); // 解鎖主題按鈕
                     } else {
                         roleBadge.innerHTML = '<i class="fa-solid fa-user-check mr-1"></i>教師模式';
                         roleBadge.className = 'bg-green-100 text-green-700 px-2 py-1.5 rounded-lg text-sm font-bold border border-green-200 hidden sm:block';
-                        document.getElementById('superAdminBtn').classList.add('hidden'); // 隱藏管理按鈕
+                        document.getElementById('superAdminBtn').classList.add('hidden'); 
                     }
                     
                     document.getElementById('adminPwd').value = ''; 
                     renderWall(); 
-                } else {
-                    alert(data.message);
-                }
+                } else alert(data.message);
             })
             .catch(e => {
-                btn.innerHTML = ogText;
-                btn.disabled = false;
-                alert('連線失敗，請檢查網路狀態。');
+                btn.innerHTML = ogText; btn.disabled = false; alert('連線失敗，請檢查網路狀態。');
             });
         }
         
         function logoutAdmin() {
             isAdminLoggedIn = false;
             savedAdminPwd = '';
+            savedRole = '';
             
             document.getElementById('adminControls').classList.add('hidden');
+            document.getElementById('themeBtn').classList.add('hidden'); // 隱藏主題按鈕
             document.getElementById('teacherBtn').classList.remove('hidden');
             
             document.getElementById('adminPanel').classList.add('hidden');
@@ -260,81 +289,45 @@
         }
 
         // ==========================================
-        // 總管專屬功能：教師名單管理
+        // 教師名單管理
         // ==========================================
-        function openTeacherManage() {
-            openModal('teacherManageModal');
-            loadTeacherList();
-        }
-
+        function openTeacherManage() { openModal('teacherManageModal'); loadTeacherList(); }
         function loadTeacherList() {
             const container = document.getElementById('teacherListContainer');
             container.innerHTML = '<div class="text-center text-gray-400 text-sm py-4"><i class="fa-solid fa-spinner fa-spin mr-2"></i>讀取名單中...</div>';
-            
             const formData = new URLSearchParams();
-            formData.append('action', 'getTeachers');
-            formData.append('pwd', savedAdminPwd);
-
-            fetch(GAS_URL, { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(data => {
+            formData.append('action', 'getTeachers'); formData.append('pwd', savedAdminPwd);
+            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => {
                 if(data.status === 'success') {
                     container.innerHTML = '';
-                    if (data.teachers.length === 0) {
-                        container.innerHTML = '<div class="text-sm text-gray-500 text-center py-2">目前尚未新增任何教師帳號。</div>';
-                    }
+                    if (data.teachers.length === 0) container.innerHTML = '<div class="text-sm text-gray-500 text-center py-2">目前尚未新增任何教師帳號。</div>';
                     data.teachers.forEach(t => {
-                        container.innerHTML += `
-                            <div class="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                                <div><div class="font-bold text-gray-800 text-sm">${t.name}</div><div class="text-xs text-gray-500 font-mono mt-0.5">密碼: ${t.pwd}</div></div>
-                                <button onclick="deleteTeacher('${t.pwd}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        `;
+                        container.innerHTML += `<div class="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm"><div><div class="font-bold text-gray-800 text-sm">${t.name}</div><div class="text-xs text-gray-500 font-mono mt-0.5">密碼: ${t.pwd}</div></div><button onclick="deleteTeacher('${t.pwd}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition"><i class="fa-solid fa-trash"></i></button></div>`;
                     });
-                } else {
-                    container.innerHTML = `<div class="text-red-500 text-sm py-2">${data.message}</div>`;
-                }
+                } else container.innerHTML = `<div class="text-red-500 text-sm py-2">${data.message}</div>`;
             });
         }
-
         function addTeacher() {
             const tName = document.getElementById('newTName').value.trim();
             const tPwd = document.getElementById('newTPwd').value.trim();
             if(!tName || !tPwd) return alert('請輸入教師姓名與密碼！');
-
             const btn = document.getElementById('addTBtn');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            
             const formData = new URLSearchParams();
-            formData.append('action', 'addTeacher');
-            formData.append('pwd', savedAdminPwd);
-            formData.append('teacherName', tName);
-            formData.append('teacherPwd', tPwd);
-
-            fetch(GAS_URL, { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(data => {
+            formData.append('action', 'addTeacher'); formData.append('pwd', savedAdminPwd);
+            formData.append('teacherName', tName); formData.append('teacherPwd', tPwd);
+            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => {
                 btn.innerHTML = '新增帳號';
-                if(data.status === 'success') {
-                    document.getElementById('newTName').value = '';
-                    document.getElementById('newTPwd').value = '';
-                    loadTeacherList();
-                } else alert(data.message);
+                if(data.status === 'success') { document.getElementById('newTName').value = ''; document.getElementById('newTPwd').value = ''; loadTeacherList(); } 
+                else alert(data.message);
             });
         }
-
         function deleteTeacher(delPwd) {
             if(confirm('確定要刪除這位教師的權限嗎？')) {
                 const formData = new URLSearchParams();
-                formData.append('action', 'deleteTeacher');
-                formData.append('pwd', savedAdminPwd);
-                formData.append('teacherPwd', delPwd);
-
-                fetch(GAS_URL, { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.status === 'success') loadTeacherList();
-                    else alert(data.message);
+                formData.append('action', 'deleteTeacher'); formData.append('pwd', savedAdminPwd); formData.append('teacherPwd', delPwd);
+                fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => {
+                    if(data.status === 'success') loadTeacherList(); else alert(data.message);
                 });
             }
         }
@@ -361,19 +354,13 @@
             note.name = document.getElementById('editName').value;
             note.title = document.getElementById('editTitle').value;
             note.content = document.getElementById('editContent').value;
-            
             localStorage.setItem('eduWallNotes', JSON.stringify(notes));
-            renderWall();
-            closeModal('editModal');
+            renderWall(); closeModal('editModal');
 
             const formData = new URLSearchParams();
-            formData.append('action', 'edit');
-            formData.append('pwd', savedAdminPwd);
-            formData.append('id', id);
-            formData.append('classInfo', note.classInfo);
-            formData.append('name', note.name);
-            formData.append('title', note.title);
-            formData.append('content', note.content);
+            formData.append('action', 'edit'); formData.append('pwd', savedAdminPwd);
+            formData.append('id', id); formData.append('classInfo', note.classInfo);
+            formData.append('name', note.name); formData.append('title', note.title); formData.append('content', note.content);
             fetch(GAS_URL, { method: 'POST', body: formData });
         }
 
@@ -382,11 +369,8 @@
                 notes = notes.filter(n => n.id !== id);
                 localStorage.setItem('eduWallNotes', JSON.stringify(notes));
                 renderWall();
-
                 const formData = new URLSearchParams();
-                formData.append('action', 'deleteSingle');
-                formData.append('pwd', savedAdminPwd);
-                formData.append('id', id);
+                formData.append('action', 'deleteSingle'); formData.append('pwd', savedAdminPwd); formData.append('id', id);
                 fetch(GAS_URL, { method: 'POST', body: formData });
             }
         }
@@ -394,17 +378,11 @@
         function clearAllNotes() {
             if(confirm('警告！確定要清空雲端與牆面上「所有」的留言嗎？無法復原喔！')) {
                 const formData = new URLSearchParams();
-                formData.append('action', 'clear');
-                formData.append('pwd', savedAdminPwd);
-
-                fetch(GAS_URL, { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(data => {
+                formData.append('action', 'clear'); formData.append('pwd', savedAdminPwd);
+                fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => {
                     if(data.status === 'success') {
-                        notes = [];
-                        localStorage.setItem('eduWallNotes', JSON.stringify(notes));
-                        renderWall(); closeModal('teacherModal');
-                        alert('留言牆已成功清空！');
+                        notes = []; localStorage.setItem('eduWallNotes', JSON.stringify(notes));
+                        renderWall(); closeModal('teacherModal'); alert('留言牆已成功清空！');
                     } else alert(data.message);
                 });
             }
@@ -434,11 +412,7 @@
             reader.readAsDataURL(file);
         }
 
-        function clearImage() {
-            currentImageBase64 = '';
-            document.getElementById('postImage').value = '';
-            document.getElementById('imagePreviewContainer').classList.add('hidden');
-        }
+        function clearImage() { currentImageBase64 = ''; document.getElementById('postImage').value = ''; document.getElementById('imagePreviewContainer').classList.add('hidden'); }
 
         function renderWall() {
             const container = document.getElementById('wallContainer');
@@ -469,10 +443,7 @@
                     ${adminButtons}
                     <div class="flex items-center gap-3 mb-3 pr-10">
                         <div class="w-9 h-9 rounded-full ${note.color} flex items-center justify-center text-white text-sm shadow-sm flex-shrink-0"><i class="fa-solid fa-user-graduate"></i></div>
-                        <div class="truncate">
-                            <div class="font-bold text-sm text-gray-900 truncate">${note.classInfo} ${note.name}</div>
-                            <div class="text-xs text-gray-500">${note.date}</div>
-                        </div>
+                        <div class="truncate"><div class="font-bold text-sm text-gray-900 truncate">${note.classInfo} ${note.name}</div><div class="text-xs text-gray-500">${note.date}</div></div>
                     </div>
                     ${imgHTML}
                     <h3 class="font-bold text-gray-800 text-[16px] mb-1 leading-snug break-words">${note.title}</h3>
@@ -506,10 +477,7 @@
                 color: currentColor, date: '剛剛', likes: 0, image: currentImageBase64 
             };
 
-            notes.push(newNote);
-            localStorage.setItem('eduWallNotes', JSON.stringify(notes));
-            renderWall();
-            
+            notes.push(newNote); localStorage.setItem('eduWallNotes', JSON.stringify(notes)); renderWall();
             document.getElementById('postClass').value = ''; document.getElementById('postName').value = '';
             document.getElementById('postTitle').value = ''; document.getElementById('postContent').value = '';
             clearImage(); closeModal('postModal');
@@ -527,8 +495,7 @@
                     const btn = event.currentTarget.querySelector('.fa-thumbs-up');
                     if(btn) btn.classList.add('text-orange-400');
                 }
-                syncToGAS('like', { id: id, likes: note.likes });
-                updateStats();
+                syncToGAS('like', { id: id, likes: note.likes }); updateStats();
             }
         }
 
@@ -538,10 +505,8 @@
             if(action === 'add' || action === 'like') formData.append('id', data.id);
             if(action === 'add') {
                 formData.append('date', new Date().toLocaleDateString('zh-TW')); 
-                formData.append('classInfo', data.classInfo);
-                formData.append('name', data.name);
-                formData.append('title', data.title);
-                formData.append('content', data.content);
+                formData.append('classInfo', data.classInfo); formData.append('name', data.name);
+                formData.append('title', data.title); formData.append('content', data.content);
                 formData.append('color', data.color);
                 if (data.image) formData.append('image', data.image); 
             }
@@ -549,12 +514,23 @@
             fetch(GAS_URL, { method: 'POST', body: formData });
         }
 
+        // 改良版同步：同時拉取留言與全站主題
         function syncWithCloud() {
             const btn = document.getElementById('syncBtn');
             const originalHTML = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>同步中';
+            
             fetch(GAS_URL).then(res => res.json()).then(data => {
-                if (data && data.length > 0) { notes = data; localStorage.setItem('eduWallNotes', JSON.stringify(notes)); renderWall(); }
+                if(data.status === 'success') {
+                    // 更新全站主題
+                    if(data.theme) applyLocalTheme(data.theme.title, data.theme.tag, data.theme.desc, data.theme.bgClass);
+                    // 更新留言卡片
+                    if(data.notes) {
+                        notes = data.notes;
+                        localStorage.setItem('eduWallNotes', JSON.stringify(notes));
+                        renderWall();
+                    }
+                }
                 btn.innerHTML = '<i class="fa-solid fa-check text-green-600 mr-1"></i>已同步';
                 setTimeout(() => btn.innerHTML = originalHTML, 2000);
             }).catch(err => {
@@ -563,7 +539,8 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', () => { renderWall(); syncWithCloud(); });
+        document.addEventListener('DOMContentLoaded', () => { syncWithCloud(); });
     </script>
 </body>
 </html>
+
