@@ -141,7 +141,7 @@
     <div id="drawModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden text-center">
             <div class="bg-yellow-500 p-4 text-white flex justify-between items-center">
-                <h2 class="text-lg font-bold"><i class="fa-solid fa-gift mr-2"></i>幸運抽籤</h2>
+                <h2 class="text-lg font-bold"><i class="fa-solid fa-gift mr-2"></i>幸運抽籤與匯出</h2>
                 <button onclick="closeModal('drawModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="p-6">
@@ -150,12 +150,14 @@
                     <label class="font-bold text-gray-700">設定抽出人數：</label>
                     <input type="number" id="drawCount" value="1" min="1" class="w-20 p-2 border border-yellow-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-yellow-400 font-bold text-lg">
                 </div>
-                <button onclick="startDraw()" class="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-bold py-3 rounded-xl hover:shadow-lg transition transform hover:-translate-y-0.5 text-lg">
+                <button id="drawBtn" onclick="startDraw()" class="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-bold py-3 rounded-xl hover:shadow-lg transition transform hover:-translate-y-0.5 text-lg">
                     🎉 開始抽籤
                 </button>
                 <div id="drawResultArea" class="mt-6 hidden">
                     <h3 class="text-lg font-bold text-gray-800 border-b-2 border-yellow-200 pb-2 mb-4">🏆 恭喜以下得獎者</h3>
-                    <div id="drawResultList" class="space-y-3"></div>
+                    <div id="drawResultList" class="space-y-3 mb-4"></div>
+                    <!-- CSV 匯出按鈕區塊 -->
+                    <div id="exportArea"></div>
                 </div>
             </div>
         </div>
@@ -175,6 +177,7 @@
         let isAdminLoggedIn = false; 
         let savedAdminPwd = ''; 
         let savedRole = '';
+        let currentWinners = []; // 暫存中獎名單供匯出用
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
@@ -260,6 +263,9 @@
             renderWall(); alert('已成功登出管理模式！');
         }
 
+        // ==========================================
+        // 🎁 總管專屬功能：幸運抽籤與匯出
+        // ==========================================
         function startDraw() {
             const count = parseInt(document.getElementById('drawCount').value) || 1;
             if (notes.length === 0) return alert('目前還沒有人投稿喔！');
@@ -269,7 +275,12 @@
             
             const resultArea = document.getElementById('drawResultArea');
             const resultList = document.getElementById('drawResultList');
+            const exportArea = document.getElementById('exportArea');
+            const drawBtn = document.getElementById('drawBtn');
+            
             resultArea.classList.remove('hidden');
+            exportArea.innerHTML = ''; // 清除上次的按鈕
+            drawBtn.disabled = true;
             resultList.innerHTML = '<div class="py-4"><i class="fa-solid fa-spinner fa-spin text-4xl text-yellow-500 mb-2"></i><p class="text-gray-500 font-bold">電腦隨機挑選中...</p></div>';
             
             setTimeout(() => {
@@ -278,13 +289,48 @@
                     const j = Math.floor(Math.random() * (i + 1));
                     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
                 }
-                const winners = shuffled.slice(0, count);
-                resultList.innerHTML = winners.map((w, index) => `
+                currentWinners = shuffled.slice(0, count);
+                
+                resultList.innerHTML = currentWinners.map((w, index) => `
                     <div class="winner-card bg-orange-50 text-orange-700 p-3 rounded-lg border border-orange-200 shadow-sm flex items-center justify-center font-bold text-xl" style="animation-delay: ${index * 0.2}s">
                         <i class="fa-solid fa-crown text-yellow-500 mr-2 text-2xl"></i> ${w}
                     </div>
                 `).join('');
+                
+                // 產生匯出按鈕
+                exportArea.innerHTML = `
+                    <button onclick='exportWinnersCSV()' class="w-full bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 transition shadow-sm">
+                        <i class="fa-solid fa-download mr-2"></i>下載中獎名單 (CSV格式)
+                    </button>
+                `;
+                drawBtn.disabled = false;
+
+                // 自動上傳名單至雲端紀錄
+                const formData = new URLSearchParams();
+                formData.append('action', 'saveWinners');
+                formData.append('pwd', savedAdminPwd);
+                formData.append('winners', JSON.stringify(currentWinners));
+                fetch(GAS_URL, { method: 'POST', body: formData });
+
             }, 1500); 
+        }
+
+        // 匯出 CSV 檔案供 Excel 開啟
+        function exportWinnersCSV() {
+            if(currentWinners.length === 0) return;
+            // 加入 BOM 解決 Excel 中文亂碼問題
+            let csvContent = "\uFEFF得獎者班級與姓名\n";
+            currentWinners.forEach(w => {
+                csvContent += `${w}\n`;
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `中獎名單_${new Date().getTime()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function openTeacherManage() { openModal('teacherManageModal'); loadTeacherList(); }
@@ -408,7 +454,6 @@
             const container = document.getElementById('wallContainer');
             container.innerHTML = '';
             
-            // 🌟 防重複按讚機制：讀取此台裝置已經按過讚的清單
             let likedList = JSON.parse(localStorage.getItem('eduWallLiked')) || [];
 
             if (notes.length === 0) {
@@ -433,7 +478,6 @@
 
                 const imgHTML = note.image ? `<img src="${note.image}" class="w-full rounded-lg mb-3 object-cover max-h-64 border border-gray-100" loading="lazy">` : '';
 
-                // 檢查是否已按過讚，若有則改變按鈕樣式
                 const isLiked = likedList.includes(note.id);
                 const thumbColor = isLiked ? 'text-orange-500' : (note.likes > 0 ? 'text-orange-400' : '');
                 const cursorStyle = isLiked ? 'cursor-not-allowed opacity-80' : 'hover:text-orange-500';
@@ -482,12 +526,8 @@
         }
 
         function likeNote(id, event) {
-            // 🌟 防重複按讚機制：從 localStorage 取得清單檢查
             let likedList = JSON.parse(localStorage.getItem('eduWallLiked')) || [];
-            if (likedList.includes(id)) {
-                alert('您已經對這篇貼文按過讚囉！');
-                return;
-            }
+            if (likedList.includes(id)) return alert('您已經對這篇貼文按過讚囉！');
 
             const note = notes.find(n => n.id === id);
             if(note) {
@@ -495,7 +535,6 @@
                 document.getElementById(`like-${id}`).innerText = note.likes;
                 localStorage.setItem('eduWallNotes', JSON.stringify(notes));
                 
-                // 記錄這台裝置已對此貼文按過讚
                 likedList.push(id);
                 localStorage.setItem('eduWallLiked', JSON.stringify(likedList));
 
