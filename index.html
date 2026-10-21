@@ -137,27 +137,30 @@
         </div>
     </div>
 
-    <!-- 幸運抽籤與匯出彈窗 -->
+    <!-- 幸運抽籤與匯出彈窗 (已修正捲動與固定匯出按鈕) -->
     <div id="drawModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden text-center">
-            <div class="bg-yellow-500 p-4 text-white flex justify-between items-center">
-                <h2 class="text-lg font-bold"><i class="fa-solid fa-gift mr-2"></i>幸運抽籤</h2>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden text-center flex flex-col max-h-[90vh]">
+            <div class="bg-yellow-500 p-4 text-white flex justify-between items-center flex-shrink-0">
+                <h2 class="text-lg font-bold"><i class="fa-solid fa-gift mr-2"></i>幸運抽籤與匯出</h2>
                 <button onclick="closeModal('drawModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div class="p-6">
+            
+            <div class="p-6 flex-1 overflow-y-auto relative">
                 <p class="text-gray-600 mb-4 font-medium">系統將自動過濾重複發表者，從所有參與名單中隨機抽出幸運兒！</p>
                 <div class="flex items-center justify-center gap-3 mb-6 bg-yellow-50 p-4 rounded-xl border border-yellow-100">
                     <label class="font-bold text-gray-700">設定抽出人數：</label>
                     <input type="number" id="drawCount" value="1" min="1" class="w-20 p-2 border border-yellow-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-yellow-400 font-bold text-lg">
                 </div>
-                <button id="drawBtn" onclick="startDraw()" class="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-bold py-3 rounded-xl hover:shadow-lg transition transform hover:-translate-y-0.5 text-lg">
+                <button id="drawBtn" onclick="startDraw()" class="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-bold py-3 rounded-xl hover:shadow-lg transition transform hover:-translate-y-0.5 text-lg flex-shrink-0">
                     🎉 開始抽籤
                 </button>
+                
                 <div id="drawResultArea" class="mt-6 hidden">
                     <h3 class="text-lg font-bold text-gray-800 border-b-2 border-yellow-200 pb-2 mb-4">🏆 恭喜以下得獎者</h3>
                     <div id="drawResultList" class="space-y-3 mb-4"></div>
-                    <!-- 這裡就是之前漏掉的匯出按鈕區塊 -->
-                    <div id="exportArea"></div>
+                    
+                    <!-- 固定於底部的 CSV 匯出按鈕區塊 -->
+                    <div id="exportArea" class="sticky bottom-0 bg-white pt-2 pb-1"></div>
                 </div>
             </div>
         </div>
@@ -177,7 +180,7 @@
         let isAdminLoggedIn = false; 
         let savedAdminPwd = ''; 
         let savedRole = '';
-        let currentWinners = []; // 儲存中獎名單
+        let currentWinners = []; 
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
@@ -270,7 +273,7 @@
             const count = parseInt(document.getElementById('drawCount').value) || 1;
             if (notes.length === 0) return alert('目前還沒有人投稿喔！');
             
-            const uniqueUsers = [...new Set(notes.map(n => `${n.classInfo} ${n.name}`))];
+            const uniqueUsers = [...new Set(notes.map(n => `${n.classInfo}${n.name}`))];
             if (count > uniqueUsers.length) return alert(`設定的抽出人數 (${count}) 不能大於實際的投稿人數 (${uniqueUsers.length} 人) 喔！`);
             
             const resultArea = document.getElementById('drawResultArea');
@@ -298,7 +301,6 @@
                     </div>
                 `).join('');
                 
-                // 產生匯出 CSV 按鈕
                 if(exportArea) {
                     exportArea.innerHTML = `
                         <button onclick='exportWinnersCSV()' class="w-full bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 transition shadow-sm mt-2">
@@ -309,7 +311,6 @@
                 
                 drawBtn.disabled = false;
                 
-                // 寫入 Google 雲端
                 const formData = new URLSearchParams();
                 formData.append('action', 'saveWinners');
                 formData.append('pwd', savedAdminPwd);
@@ -318,22 +319,16 @@
             }, 1500); 
         }
 
-        // CSV 匯出功能
         function exportWinnersCSV() {
             if(!currentWinners || currentWinners.length === 0) return;
-            // 加上 \uFEFF 以避免 Excel 中文亂碼
             let csvContent = "\uFEFF得獎者班級與姓名\n";
-            currentWinners.forEach(w => {
-                csvContent += `${w}\n`;
-            });
+            currentWinners.forEach(w => { csvContent += `${w}\n`; });
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
             link.setAttribute("href", url);
             link.setAttribute("download", `中獎名單_${new Date().getTime()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
         function openTeacherManage() { openModal('teacherManageModal'); loadTeacherList(); }
@@ -472,118 +467,4 @@
                 let adminButtons = '';
                 if (isAdminLoggedIn) {
                     adminButtons = `
-                        <div class="absolute top-2 right-2 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="openEditModal('${note.id}')" class="bg-gray-800 text-white w-8 h-8 rounded-full shadow hover:bg-gray-700 flex items-center justify-center" title="編輯"><i class="fa-solid fa-pen text-xs"></i></button>
-                            <button onclick="deleteSingleNote('${note.id}')" class="bg-red-500 text-white w-8 h-8 rounded-full shadow hover:bg-red-600 flex items-center justify-center" title="刪除"><i class="fa-solid fa-trash text-xs"></i></button>
-                        </div>
-                    `;
-                }
-
-                const imgHTML = note.image ? `<img src="${note.image}" class="w-full rounded-lg mb-3 object-cover max-h-64 border border-gray-100" loading="lazy">` : '';
-
-                const isLiked = likedList.includes(note.id);
-                const thumbColor = isLiked ? 'text-orange-500' : (note.likes > 0 ? 'text-orange-400' : '');
-                const cursorStyle = isLiked ? 'cursor-not-allowed opacity-80' : 'hover:text-orange-500';
-
-                card.innerHTML = `
-                    ${adminButtons}
-                    <div class="flex items-center gap-3 mb-3 pr-10">
-                        <div class="w-9 h-9 rounded-full ${note.color} flex items-center justify-center text-white text-sm shadow-sm flex-shrink-0"><i class="fa-solid fa-user-graduate"></i></div>
-                        <div class="truncate"><div class="font-bold text-sm text-gray-900 truncate">${note.classInfo} ${note.name}</div><div class="text-xs text-gray-500">${note.date}</div></div>
-                    </div>
-                    ${imgHTML}
-                    <h3 class="font-bold text-gray-800 text-[16px] mb-1 leading-snug break-words">${note.title}</h3>
-                    <p class="text-gray-700 text-[14px] whitespace-pre-wrap leading-relaxed mb-4 break-words">${note.content}</p>
-                    <div class="flex items-center gap-4 text-gray-500 text-sm mt-3 pt-3 border-t border-gray-100">
-                        <button onclick="likeNote('${note.id}', event)" class="flex items-center gap-1.5 transition font-medium ${cursorStyle}">
-                            <i class="fa-solid fa-thumbs-up ${thumbColor}"></i> <span id="like-${note.id}">${note.likes || 0}</span>
-                        </button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-            updateStats();
-        }
-
-        function submitPost() {
-            const classInfo = document.getElementById('postClass').value.trim();
-            const name = document.getElementById('postName').value.trim();
-            const title = document.getElementById('postTitle').value.trim();
-            const content = document.getElementById('postContent').value.trim();
-
-            if (!classInfo || !name || !title) return alert('提醒您：「班級」、「姓名」與「標題」為必填欄位喔！');
-            if (!content && !currentImageBase64) return alert('提醒您：請填寫「想法內容」或是「上傳照片」唷！（至少二擇一）');
-
-            const newNote = {
-                id: 'id_' + Date.now().toString(),
-                classInfo: classInfo, name: name, title: title, content: content,
-                color: currentColor, date: '剛剛', likes: 0, image: currentImageBase64 
-            };
-
-            notes.push(newNote); localStorage.setItem('eduWallNotes', JSON.stringify(notes)); renderWall();
-            document.getElementById('postClass').value = ''; document.getElementById('postName').value = '';
-            document.getElementById('postTitle').value = ''; document.getElementById('postContent').value = '';
-            clearImage(); closeModal('postModal');
-
-            syncToGAS('add', newNote);
-        }
-
-        function likeNote(id, event) {
-            let likedList = JSON.parse(localStorage.getItem('eduWallLiked')) || [];
-            if (likedList.includes(id)) return alert('您已經對這篇貼文按過讚囉！');
-
-            const note = notes.find(n => n.id === id);
-            if(note) {
-                note.likes = (note.likes || 0) + 1;
-                document.getElementById(`like-${id}`).innerText = note.likes;
-                localStorage.setItem('eduWallNotes', JSON.stringify(notes));
-                
-                likedList.push(id);
-                localStorage.setItem('eduWallLiked', JSON.stringify(likedList));
-
-                if(event) {
-                    const btn = event.currentTarget.querySelector('.fa-thumbs-up');
-                    if(btn) btn.classList.add('text-orange-500');
-                    event.currentTarget.classList.add('cursor-not-allowed', 'opacity-80');
-                    event.currentTarget.classList.remove('hover:text-orange-500');
-                }
-                syncToGAS('like', { id: id, likes: note.likes }); updateStats();
-            }
-        }
-
-        function syncToGAS(action, data) {
-            const formData = new URLSearchParams();
-            formData.append('action', action);
-            if(action === 'add' || action === 'like') formData.append('id', data.id);
-            if(action === 'add') {
-                formData.append('date', new Date().toLocaleDateString('zh-TW')); 
-                formData.append('classInfo', data.classInfo); formData.append('name', data.name);
-                formData.append('title', data.title); formData.append('content', data.content);
-                formData.append('color', data.color);
-                if (data.image) formData.append('image', data.image); 
-            }
-            if(action === 'like') formData.append('likes', data.likes);
-            fetch(GAS_URL, { method: 'POST', body: formData });
-        }
-
-        function syncWithCloud() {
-            const btn = document.getElementById('syncBtn');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>同步中';
-            fetch(GAS_URL).then(res => res.json()).then(data => {
-                if(data.status === 'success') {
-                    if(data.theme) applyLocalTheme(data.theme.title, data.theme.tag, data.theme.desc, data.theme.bgClass);
-                    if(data.notes) { notes = data.notes; localStorage.setItem('eduWallNotes', JSON.stringify(notes)); renderWall(); }
-                }
-                btn.innerHTML = '<i class="fa-solid fa-check text-green-600 mr-1"></i>已同步';
-                setTimeout(() => btn.innerHTML = originalHTML, 2000);
-            }).catch(err => {
-                btn.innerHTML = '<i class="fa-solid fa-check text-green-600 mr-1"></i>完成'; 
-                setTimeout(() => btn.innerHTML = originalHTML, 2000);
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => { syncWithCloud(); });
-    </script>
-</body>
-</html>
+                        <div class="absolute top-2 right-2 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition
