@@ -19,6 +19,12 @@
         
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .winner-card { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; }
+        
+        /* 自訂捲軸樣式，讓視窗捲動更美觀 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="min-h-screen text-gray-800 bg-blue-50" id="bodyBg">
@@ -74,9 +80,9 @@
 
     <!-- 投稿彈窗 -->
     <div id="postModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all max-h-[90vh] overflow-y-auto">
-            <div class="bg-gradient-to-r from-orange-500 to-amber-500 p-4 text-white flex justify-between items-center sticky top-0 z-10"><h2 class="text-lg font-bold"><i class="fa-solid fa-pen-to-square mr-2"></i>新增便利貼</h2><button onclick="closeModal('postModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div>
-            <div class="p-6 space-y-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-gradient-to-r from-orange-500 to-amber-500 p-4 text-white flex justify-between items-center flex-shrink-0"><h2 class="text-lg font-bold"><i class="fa-solid fa-pen-to-square mr-2"></i>新增便利貼</h2><button onclick="closeModal('postModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div>
+            <div class="p-6 space-y-4 overflow-y-auto">
                 <div class="flex gap-3">
                     <div class="w-2/5"><input type="text" id="postClass" placeholder="班級 (必填)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400"></div>
                     <div class="w-3/5"><input type="text" id="postName" placeholder="姓名/暱稱 (必填)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400"></div>
@@ -106,26 +112,26 @@
     </div>
 
     <!-- 教師編修彈窗 -->
-    <div id="editModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all"><div class="bg-gray-800 p-4 text-white flex justify-between items-center"><h2 class="text-lg font-bold"><i class="fa-solid fa-pen-ruler mr-2"></i>教師編修留言</h2><button onclick="closeModal('editModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 space-y-4"><input type="hidden" id="editId"><div class="flex gap-3"><input type="text" id="editClass" placeholder="班級" class="w-2/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-500"><input type="text" id="editName" placeholder="姓名" class="w-3/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-500"></div><input type="text" id="editTitle" placeholder="標題" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-500 font-bold"><textarea id="editContent" rows="5" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-500 resize-none"></textarea><button onclick="submitEdit()" class="w-full bg-gray-800 text-white font-bold py-3 rounded-xl hover:bg-gray-700 transition">💾 儲存修改</button></div></div></div>
+    <div id="editModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]"><div class="bg-gray-800 p-4 text-white flex justify-between items-center flex-shrink-0"><h2 class="text-lg font-bold"><i class="fa-solid fa-pen-ruler mr-2"></i>教師編修留言</h2><button onclick="closeModal('editModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 space-y-4 overflow-y-auto"><input type="hidden" id="editId"><div class="flex gap-3"><input type="text" id="editClass" placeholder="班級" class="w-2/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-500"><input type="text" id="editName" placeholder="姓名" class="w-3/5 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-500"></div><input type="text" id="editTitle" placeholder="標題" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-500 font-bold"><textarea id="editContent" rows="5" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-500 resize-none"></textarea><button onclick="submitEdit()" class="w-full bg-gray-800 text-white font-bold py-3 rounded-xl hover:bg-gray-700 transition">💾 儲存修改</button></div></div></div>
 
     <!-- 教師登入彈窗 -->
     <div id="teacherModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-            <div class="bg-gray-800 p-4 text-white flex justify-between items-center">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-gray-800 p-4 text-white flex justify-between items-center flex-shrink-0">
                 <h2 class="text-lg font-bold"><i class="fa-solid fa-user-gear mr-2"></i>管理員登入</h2>
                 <button onclick="closeModal('teacherModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             
-            <div id="adminLogin" class="p-6">
+            <div id="adminLogin" class="p-6 overflow-y-auto">
                 <p class="text-sm text-gray-600 mb-4">請輸入教師密碼或總管密碼</p>
                 <input type="password" id="adminPwd" placeholder="請輸入密碼" class="w-full p-3 border rounded-xl mb-4 focus:outline-none focus:border-gray-500">
                 <button id="loginBtn" onclick="checkAdmin()" class="w-full bg-gray-800 text-white font-bold py-3 rounded-xl hover:bg-gray-700 flex justify-center items-center">驗證身分登入</button>
             </div>
             
-            <div id="adminPanel" class="p-6 hidden space-y-4">
+            <div id="adminPanel" class="p-6 hidden space-y-4 overflow-y-auto">
                 <div class="text-green-600 font-bold border-b pb-3 mb-2 flex items-center"><i class="fa-solid fa-check-circle mr-2 text-xl"></i>已成功登入管理模式</div>
                 <button id="superAdminDrawBtn" onclick="openModal('drawModal')" class="hidden w-full bg-yellow-100 text-yellow-700 font-bold py-3 rounded-xl hover:bg-yellow-200 border border-yellow-200 transition">
-                    <i class="fa-solid fa-gift mr-2"></i>幸運抽籤 (總管專用)
+                    <i class="fa-solid fa-gift mr-2"></i>幸運抽籤與匯出 (總管)
                 </button>
                 <button id="superAdminBtn" onclick="openTeacherManage()" class="hidden w-full bg-blue-100 text-blue-700 font-bold py-3 rounded-xl hover:bg-blue-200 border border-blue-200 transition">
                     <i class="fa-solid fa-users-gear mr-2"></i>管理教師名單 (總管)
@@ -137,14 +143,16 @@
         </div>
     </div>
 
-    <!-- 幸運抽籤與匯出彈窗 (已修正捲動與固定匯出按鈕) -->
+    <!-- 🎁 幸運抽籤與匯出彈窗 (已加入捲動保護，絕不卡住！) -->
     <div id="drawModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden text-center flex flex-col max-h-[90vh]">
+            
             <div class="bg-yellow-500 p-4 text-white flex justify-between items-center flex-shrink-0">
                 <h2 class="text-lg font-bold"><i class="fa-solid fa-gift mr-2"></i>幸運抽籤與匯出</h2>
                 <button onclick="closeModal('drawModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             
+            <!-- 此區塊負責自動產生內部捲軸 -->
             <div class="p-6 flex-1 overflow-y-auto relative">
                 <p class="text-gray-600 mb-4 font-medium">系統將自動過濾重複發表者，從所有參與名單中隨機抽出幸運兒！</p>
                 <div class="flex items-center justify-center gap-3 mb-6 bg-yellow-50 p-4 rounded-xl border border-yellow-100">
@@ -155,26 +163,36 @@
                     🎉 開始抽籤
                 </button>
                 
+                <!-- 結果清單，若過長會在內部捲動 -->
                 <div id="drawResultArea" class="mt-6 hidden">
                     <h3 class="text-lg font-bold text-gray-800 border-b-2 border-yellow-200 pb-2 mb-4">🏆 恭喜以下得獎者</h3>
                     <div id="drawResultList" class="space-y-3 mb-4"></div>
                     
-                    <!-- 固定於底部的 CSV 匯出按鈕區塊 -->
-                    <div id="exportArea" class="sticky bottom-0 bg-white pt-2 pb-1"></div>
+                    <!-- CSV 匯出按鈕區塊：固定浮動在視窗最下方 -->
+                    <div id="exportArea" class="sticky bottom-0 bg-white pt-2 pb-1 border-t border-gray-100 mt-4"></div>
                 </div>
             </div>
+            
         </div>
     </div>
 
     <!-- 教師名單管理彈窗 -->
-    <div id="teacherManageModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[80vh]"><div class="bg-blue-600 p-4 text-white flex justify-between items-center"><h2 class="text-lg font-bold"><i class="fa-solid fa-users-gear mr-2"></i>教師帳號管理</h2><button onclick="closeModal('teacherManageModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 flex-1 overflow-y-auto"><div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6"><h3 class="font-bold text-blue-800 mb-3 text-sm">新增一位教師</h3><div class="flex gap-2 mb-2"><input type="text" id="newTName" placeholder="教師姓名" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400"><input type="text" id="newTPwd" placeholder="設定密碼" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400"></div><button id="addTBtn" onclick="addTeacher()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 text-sm transition">新增帳號</button></div><h3 class="font-bold text-gray-700 mb-3 border-b pb-2">目前已授權的教師名單</h3><div id="teacherListContainer" class="space-y-2"><div class="text-center text-gray-400 text-sm py-4">載入中...</div></div></div></div></div>
+    <div id="teacherManageModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]"><div class="bg-blue-600 p-4 text-white flex justify-between items-center flex-shrink-0"><h2 class="text-lg font-bold"><i class="fa-solid fa-users-gear mr-2"></i>教師帳號管理</h2><button onclick="closeModal('teacherManageModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 flex-1 overflow-y-auto"><div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6"><h3 class="font-bold text-blue-800 mb-3 text-sm">新增一位教師</h3><div class="flex gap-2 mb-2"><input type="text" id="newTName" placeholder="教師姓名" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400"><input type="text" id="newTPwd" placeholder="設定密碼" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400"></div><button id="addTBtn" onclick="addTeacher()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 text-sm transition">新增帳號</button></div><h3 class="font-bold text-gray-700 mb-3 border-b pb-2">目前已授權的教師名單</h3><div id="teacherListContainer" class="space-y-2"><div class="text-center text-gray-400 text-sm py-4">載入中...</div></div></div></div></div>
 
     <!-- 主題切換彈窗 -->
-    <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden"><div class="bg-amber-600 p-4 text-white flex justify-between items-center"><h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>設定全站主題 (總管專用)</h2><button onclick="closeModal('themeModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4"><button onclick="applyTheme('晨讀心得分享牆 📖 ✏️', '閱讀推廣', '歡迎興嘉國小的同學們！讀完一本好書後，請寫下 50 字心得與喜愛的一句話，並拍照上傳與全班分享喔！', 'bg-blue-50')" class="p-4 border-2 border-transparent bg-amber-50 rounded-xl hover:border-amber-400 text-left transition"><div class="text-3xl mb-2">📚</div><div class="font-bold text-gray-800">晨讀心得牆</div></button><button onclick="applyTheme('教師節敬師感恩牆 🍎', '敬師活動', '大聲說出你的感謝！請寫下對老師的感恩與祝福。', 'bg-orange-50')" class="p-4 border-2 border-transparent bg-orange-50 rounded-xl hover:border-orange-400 text-left transition"><div class="text-3xl mb-2">🍎</div><div class="font-bold text-gray-800">教師節敬師</div></button><button onclick="applyTheme('母親節感恩牆 🌸', '感恩溫馨', '母親節快樂！留下你想對媽媽說的心裡話，給媽媽一個驚喜吧。', 'bg-pink-50')" class="p-4 border-2 border-transparent bg-pink-50 rounded-xl hover:border-pink-400 text-left transition"><div class="text-3xl mb-2">🌸</div><div class="font-bold text-gray-800">母親節感恩</div></button></div></div></div>
+    <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]"><div class="bg-amber-600 p-4 text-white flex justify-between items-center flex-shrink-0"><h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>設定全站主題 (總管專用)</h2><button onclick="closeModal('themeModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4 overflow-y-auto"><button onclick="applyTheme('晨讀心得分享牆 📖 ✏️', '閱讀推廣', '歡迎興嘉國小的同學們！讀完一本好書後，請寫下 50 字心得與喜愛的一句話，並拍照上傳與全班分享喔！', 'bg-blue-50')" class="p-4 border-2 border-transparent bg-amber-50 rounded-xl hover:border-amber-400 text-left transition"><div class="text-3xl mb-2">📚</div><div class="font-bold text-gray-800">晨讀心得牆</div></button><button onclick="applyTheme('教師節敬師感恩牆 🍎', '敬師活動', '大聲說出你的感謝！請寫下對老師的感恩與祝福。', 'bg-orange-50')" class="p-4 border-2 border-transparent bg-orange-50 rounded-xl hover:border-orange-400 text-left transition"><div class="text-3xl mb-2">🍎</div><div class="font-bold text-gray-800">教師節敬師</div></button><button onclick="applyTheme('母親節感恩牆 🌸', '感恩溫馨', '母親節快樂！留下你想對媽媽說的心裡話，給媽媽一個驚喜吧。', 'bg-pink-50')" class="p-4 border-2 border-transparent bg-pink-50 rounded-xl hover:border-pink-400 text-left transition"><div class="text-3xl mb-2">🌸</div><div class="font-bold text-gray-800">母親節感恩</div></button></div></div></div>
 
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycby4qr-hd5bA_rsg0MU5qvXk1cGXcYS2HK_yh5G_kqNIS7ODQooUc12sA--dqbxDsBI4/exec";
+        
+        // 🔒 加入防呆解析，避免舊有 localStorage 格式錯誤導致網頁卡死
         let notes = [];
+        try {
+            const storedNotes = localStorage.getItem('eduWallNotes');
+            if (storedNotes) notes = JSON.parse(storedNotes);
+            if (!Array.isArray(notes)) notes = [];
+        } catch(e) { notes = []; }
+
         let currentColor = 'bg-green-400';
         let currentImageBase64 = ''; 
         let isAdminLoggedIn = false; 
@@ -273,7 +291,7 @@
             const count = parseInt(document.getElementById('drawCount').value) || 1;
             if (notes.length === 0) return alert('目前還沒有人投稿喔！');
             
-            const uniqueUsers = [...new Set(notes.map(n => `${n.classInfo}${n.name}`))];
+            const uniqueUsers = [...new Set(notes.map(n => `${n.classInfo} ${n.name}`))];
             if (count > uniqueUsers.length) return alert(`設定的抽出人數 (${count}) 不能大於實際的投稿人數 (${uniqueUsers.length} 人) 喔！`);
             
             const resultArea = document.getElementById('drawResultArea');
@@ -452,7 +470,13 @@
             const container = document.getElementById('wallContainer');
             container.innerHTML = '';
             
-            let likedList = JSON.parse(localStorage.getItem('eduWallLiked')) || [];
+            // 🔒 本機防呆機制
+            let likedList = [];
+            try {
+                const storedLiked = localStorage.getItem('eduWallLiked');
+                if (storedLiked) likedList = JSON.parse(storedLiked);
+                if (!Array.isArray(likedList)) likedList = [];
+            } catch(e) { likedList = []; }
 
             if (notes.length === 0) {
                 container.innerHTML = `<div class="w-full text-center py-20 text-gray-500 font-medium col-span-full"><i class="fa-solid fa-box-open text-4xl mb-3 block text-gray-300"></i>目前還沒有便利貼，趕快搶頭香！</div>`;
@@ -467,4 +491,124 @@
                 let adminButtons = '';
                 if (isAdminLoggedIn) {
                     adminButtons = `
-                        <div class="absolute top-2 right-2 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition
+                        <div class="absolute top-2 right-2 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="openEditModal('${note.id}')" class="bg-gray-800 text-white w-8 h-8 rounded-full shadow hover:bg-gray-700 flex items-center justify-center" title="編輯"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button onclick="deleteSingleNote('${note.id}')" class="bg-red-500 text-white w-8 h-8 rounded-full shadow hover:bg-red-600 flex items-center justify-center" title="刪除"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </div>
+                    `;
+                }
+
+                const imgHTML = note.image ? `<img src="${note.image}" class="w-full rounded-lg mb-3 object-cover max-h-64 border border-gray-100" loading="lazy">` : '';
+
+                const isLiked = likedList.includes(note.id);
+                const thumbColor = isLiked ? 'text-orange-500' : (note.likes > 0 ? 'text-orange-400' : '');
+                const cursorStyle = isLiked ? 'cursor-not-allowed opacity-80' : 'hover:text-orange-500';
+
+                card.innerHTML = `
+                    ${adminButtons}
+                    <div class="flex items-center gap-3 mb-3 pr-10">
+                        <div class="w-9 h-9 rounded-full ${note.color} flex items-center justify-center text-white text-sm shadow-sm flex-shrink-0"><i class="fa-solid fa-user-graduate"></i></div>
+                        <div class="truncate"><div class="font-bold text-sm text-gray-900 truncate">${note.classInfo} ${note.name}</div><div class="text-xs text-gray-500">${note.date}</div></div>
+                    </div>
+                    ${imgHTML}
+                    <h3 class="font-bold text-gray-800 text-[16px] mb-1 leading-snug break-words">${note.title}</h3>
+                    <p class="text-gray-700 text-[14px] whitespace-pre-wrap leading-relaxed mb-4 break-words">${note.content}</p>
+                    <div class="flex items-center gap-4 text-gray-500 text-sm mt-3 pt-3 border-t border-gray-100">
+                        <button onclick="likeNote('${note.id}', event)" class="flex items-center gap-1.5 transition font-medium ${cursorStyle}">
+                            <i class="fa-solid fa-thumbs-up ${thumbColor}"></i> <span id="like-${note.id}">${note.likes || 0}</span>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            updateStats();
+        }
+
+        function submitPost() {
+            const classInfo = document.getElementById('postClass').value.trim();
+            const name = document.getElementById('postName').value.trim();
+            const title = document.getElementById('postTitle').value.trim();
+            const content = document.getElementById('postContent').value.trim();
+
+            if (!classInfo || !name || !title) return alert('提醒您：「班級」、「姓名」與「標題」為必填欄位喔！');
+            if (!content && !currentImageBase64) return alert('提醒您：請填寫「想法內容」或是「上傳照片」唷！（至少二擇一）');
+
+            const newNote = {
+                id: 'id_' + Date.now().toString(),
+                classInfo: classInfo, name: name, title: title, content: content,
+                color: currentColor, date: '剛剛', likes: 0, image: currentImageBase64 
+            };
+
+            notes.push(newNote); localStorage.setItem('eduWallNotes', JSON.stringify(notes)); renderWall();
+            document.getElementById('postClass').value = ''; document.getElementById('postName').value = '';
+            document.getElementById('postTitle').value = ''; document.getElementById('postContent').value = '';
+            clearImage(); closeModal('postModal');
+
+            syncToGAS('add', newNote);
+        }
+
+        function likeNote(id, event) {
+            let likedList = [];
+            try {
+                const storedLiked = localStorage.getItem('eduWallLiked');
+                if (storedLiked) likedList = JSON.parse(storedLiked);
+                if (!Array.isArray(likedList)) likedList = [];
+            } catch(e) { likedList = []; }
+
+            if (likedList.includes(id)) return alert('您已經對這篇貼文按過讚囉！');
+
+            const note = notes.find(n => n.id === id);
+            if(note) {
+                note.likes = (note.likes || 0) + 1;
+                document.getElementById(`like-${id}`).innerText = note.likes;
+                localStorage.setItem('eduWallNotes', JSON.stringify(notes));
+                
+                likedList.push(id);
+                localStorage.setItem('eduWallLiked', JSON.stringify(likedList));
+
+                if(event) {
+                    const btn = event.currentTarget.querySelector('.fa-thumbs-up');
+                    if(btn) btn.classList.add('text-orange-500');
+                    event.currentTarget.classList.add('cursor-not-allowed', 'opacity-80');
+                    event.currentTarget.classList.remove('hover:text-orange-500');
+                }
+                syncToGAS('like', { id: id, likes: note.likes }); updateStats();
+            }
+        }
+
+        function syncToGAS(action, data) {
+            const formData = new URLSearchParams();
+            formData.append('action', action);
+            if(action === 'add' || action === 'like') formData.append('id', data.id);
+            if(action === 'add') {
+                formData.append('date', new Date().toLocaleDateString('zh-TW')); 
+                formData.append('classInfo', data.classInfo); formData.append('name', data.name);
+                formData.append('title', data.title); formData.append('content', data.content);
+                formData.append('color', data.color);
+                if (data.image) formData.append('image', data.image); 
+            }
+            if(action === 'like') formData.append('likes', data.likes);
+            fetch(GAS_URL, { method: 'POST', body: formData });
+        }
+
+        function syncWithCloud() {
+            const btn = document.getElementById('syncBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>同步中';
+            fetch(GAS_URL).then(res => res.json()).then(data => {
+                if(data.status === 'success') {
+                    if(data.theme) applyLocalTheme(data.theme.title, data.theme.tag, data.theme.desc, data.theme.bgClass);
+                    if(data.notes) { notes = data.notes; localStorage.setItem('eduWallNotes', JSON.stringify(notes)); renderWall(); }
+                }
+                btn.innerHTML = '<i class="fa-solid fa-check text-green-600 mr-1"></i>已同步';
+                setTimeout(() => btn.innerHTML = originalHTML, 2000);
+            }).catch(err => {
+                btn.innerHTML = '<i class="fa-solid fa-check text-green-600 mr-1"></i>完成'; 
+                setTimeout(() => btn.innerHTML = originalHTML, 2000);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { syncWithCloud(); });
+    </script>
+</body>
+</html>
