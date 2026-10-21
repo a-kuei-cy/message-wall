@@ -137,11 +137,11 @@
         </div>
     </div>
 
-    <!-- 幸運抽籤彈窗 -->
+    <!-- 幸運抽籤與匯出彈窗 -->
     <div id="drawModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden text-center">
             <div class="bg-yellow-500 p-4 text-white flex justify-between items-center">
-                <h2 class="text-lg font-bold"><i class="fa-solid fa-gift mr-2"></i>幸運抽籤與匯出</h2>
+                <h2 class="text-lg font-bold"><i class="fa-solid fa-gift mr-2"></i>幸運抽籤</h2>
                 <button onclick="closeModal('drawModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="p-6">
@@ -156,7 +156,7 @@
                 <div id="drawResultArea" class="mt-6 hidden">
                     <h3 class="text-lg font-bold text-gray-800 border-b-2 border-yellow-200 pb-2 mb-4">🏆 恭喜以下得獎者</h3>
                     <div id="drawResultList" class="space-y-3 mb-4"></div>
-                    <!-- CSV 匯出按鈕區塊 -->
+                    <!-- 這裡就是之前漏掉的匯出按鈕區塊 -->
                     <div id="exportArea"></div>
                 </div>
             </div>
@@ -177,7 +177,7 @@
         let isAdminLoggedIn = false; 
         let savedAdminPwd = ''; 
         let savedRole = '';
-        let currentWinners = []; // 暫存中獎名單供匯出用
+        let currentWinners = []; // 儲存中獎名單
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
@@ -264,7 +264,7 @@
         }
 
         // ==========================================
-        // 🎁 總管專屬功能：幸運抽籤與匯出
+        // 🎁 幸運抽籤與匯出 CSV
         // ==========================================
         function startDraw() {
             const count = parseInt(document.getElementById('drawCount').value) || 1;
@@ -279,8 +279,9 @@
             const drawBtn = document.getElementById('drawBtn');
             
             resultArea.classList.remove('hidden');
-            exportArea.innerHTML = ''; // 清除上次的按鈕
+            exportArea.innerHTML = ''; 
             drawBtn.disabled = true;
+            
             resultList.innerHTML = '<div class="py-4"><i class="fa-solid fa-spinner fa-spin text-4xl text-yellow-500 mb-2"></i><p class="text-gray-500 font-bold">電腦隨機挑選中...</p></div>';
             
             setTimeout(() => {
@@ -297,28 +298,30 @@
                     </div>
                 `).join('');
                 
-                // 產生匯出按鈕
-                exportArea.innerHTML = `
-                    <button onclick='exportWinnersCSV()' class="w-full bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 transition shadow-sm">
-                        <i class="fa-solid fa-download mr-2"></i>下載中獎名單 (CSV格式)
-                    </button>
-                `;
+                // 產生匯出 CSV 按鈕
+                if(exportArea) {
+                    exportArea.innerHTML = `
+                        <button onclick='exportWinnersCSV()' class="w-full bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 transition shadow-sm mt-2">
+                            <i class="fa-solid fa-download mr-2"></i>下載中獎名單 (CSV)
+                        </button>
+                    `;
+                }
+                
                 drawBtn.disabled = false;
-
-                // 自動上傳名單至雲端紀錄
+                
+                // 寫入 Google 雲端
                 const formData = new URLSearchParams();
                 formData.append('action', 'saveWinners');
                 formData.append('pwd', savedAdminPwd);
                 formData.append('winners', JSON.stringify(currentWinners));
                 fetch(GAS_URL, { method: 'POST', body: formData });
-
             }, 1500); 
         }
 
-        // 匯出 CSV 檔案供 Excel 開啟
+        // CSV 匯出功能
         function exportWinnersCSV() {
-            if(currentWinners.length === 0) return;
-            // 加入 BOM 解決 Excel 中文亂碼問題
+            if(!currentWinners || currentWinners.length === 0) return;
+            // 加上 \uFEFF 以避免 Excel 中文亂碼
             let csvContent = "\uFEFF得獎者班級與姓名\n";
             currentWinners.forEach(w => {
                 csvContent += `${w}\n`;
