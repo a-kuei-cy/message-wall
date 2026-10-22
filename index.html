@@ -20,7 +20,6 @@
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .winner-card { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; }
         
-        /* 自訂捲軸 */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -67,9 +66,9 @@
                 <p class="text-gray-700 font-medium" id="headerDesc">正在連接雲端資料庫...</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 flex gap-6 text-center min-w-[300px]">
-                <div class="flex-1 border-r border-gray-100"><div class="text-2xl font-black text-orange-500" id="statPosts">0</div><div class="text-xs text-gray-500 mt-1">投稿數</div></div>
-                <div class="flex-1 border-r border-gray-100"><div class="text-2xl font-black text-pink-500" id="statLikes">0</div><div class="text-xs text-gray-500 mt-1">讚數</div></div>
-                <div class="flex-1"><div class="text-2xl font-black text-blue-500">0</div><div class="text-xs text-gray-500 mt-1">迴響</div></div>
+                <div class="flex-1 border-r border-gray-100"><div class="text-2xl font-black text-orange-500" id="statPosts">0</div><div class="text-xs text-gray-500 mt-1">本區投稿數</div></div>
+                <div class="flex-1 border-r border-gray-100"><div class="text-2xl font-black text-pink-500" id="statLikes">0</div><div class="text-xs text-gray-500 mt-1">本區讚數</div></div>
+                <div class="flex-1"><div class="text-2xl font-black text-blue-500">0</div><div class="text-xs text-gray-500 mt-1">互動迴響</div></div>
             </div>
         </div>
     </div>
@@ -121,27 +120,29 @@
                 <h2 class="text-lg font-bold"><i class="fa-solid fa-user-gear mr-2"></i>管理員登入</h2>
                 <button onclick="closeModal('teacherModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
+            
             <div id="adminLogin" class="p-6 overflow-y-auto">
                 <p class="text-sm text-gray-600 mb-4">請輸入教師密碼或總管密碼</p>
                 <input type="password" id="adminPwd" placeholder="請輸入密碼" class="w-full p-3 border rounded-xl mb-4 focus:outline-none focus:border-gray-500">
                 <button id="loginBtn" onclick="checkAdmin()" class="w-full bg-gray-800 text-white font-bold py-3 rounded-xl hover:bg-gray-700 flex justify-center items-center">驗證身分登入</button>
             </div>
+            
             <div id="adminPanel" class="p-6 hidden space-y-4 overflow-y-auto">
                 <div class="text-green-600 font-bold border-b pb-3 mb-2 flex items-center"><i class="fa-solid fa-check-circle mr-2 text-xl"></i>已成功登入管理模式</div>
                 <button id="superAdminDrawBtn" onclick="openModal('drawModal')" class="hidden w-full bg-yellow-100 text-yellow-700 font-bold py-3 rounded-xl hover:bg-yellow-200 border border-yellow-200 transition">
-                    <i class="fa-solid fa-gift mr-2"></i>幸運抽籤與匯出 (總管)
+                    <i class="fa-solid fa-gift mr-2"></i>抽籤與匯出 (總管)
                 </button>
                 <button id="superAdminBtn" onclick="openTeacherManage()" class="hidden w-full bg-blue-100 text-blue-700 font-bold py-3 rounded-xl hover:bg-blue-200 border border-blue-200 transition">
                     <i class="fa-solid fa-users-gear mr-2"></i>管理教師名單 (總管)
                 </button>
                 <button onclick="clearAllNotes()" class="w-full bg-red-100 text-red-600 font-bold py-3 rounded-xl hover:bg-red-200 border border-red-200 transition">
-                    <i class="fa-solid fa-dumpster-fire mr-2"></i>清空整面留言牆
+                    <i class="fa-solid fa-dumpster-fire mr-2"></i>清空目前主題的留言
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 幸運抽籤與匯出彈窗 -->
+    <!-- 幸運抽籤彈窗 -->
     <div id="drawModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden text-center flex flex-col max-h-[90vh]">
             <div class="bg-yellow-500 p-4 text-white flex justify-between items-center flex-shrink-0">
@@ -149,16 +150,16 @@
                 <button onclick="closeModal('drawModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="p-6 flex-1 overflow-y-auto relative">
-                <p class="text-gray-600 mb-4 font-medium">系統將自動過濾重複發表者，從所有參與名單中隨機抽出幸運兒！</p>
+                <p class="text-gray-600 mb-4 font-medium text-sm">系統將自動過濾重複發表者，從「目前主題」中抽出幸運兒！</p>
                 <div class="flex items-center justify-center gap-3 mb-6 bg-yellow-50 p-4 rounded-xl border border-yellow-100">
-                    <label class="font-bold text-gray-700">設定抽出人數：</label>
+                    <label class="font-bold text-gray-700">抽出人數：</label>
                     <input type="number" id="drawCount" value="1" min="1" class="w-20 p-2 border border-yellow-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-yellow-400 font-bold text-lg">
                 </div>
                 <button id="drawBtn" onclick="startDraw()" class="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-bold py-3 rounded-xl hover:shadow-lg transition transform hover:-translate-y-0.5 text-lg flex-shrink-0">
                     🎉 開始抽籤
                 </button>
                 <div id="drawResultArea" class="mt-6 hidden">
-                    <h3 class="text-lg font-bold text-gray-800 border-b-2 border-yellow-200 pb-2 mb-4">🏆 恭喜以下得獎者</h3>
+                    <h3 class="text-lg font-bold text-gray-800 border-b-2 border-yellow-200 pb-2 mb-4">🏆 本區得獎者</h3>
                     <div id="drawResultList" class="space-y-3 mb-4"></div>
                     <div id="exportArea" class="sticky bottom-0 bg-white pt-2 pb-1 border-t border-gray-100 mt-4"></div>
                 </div>
@@ -169,19 +170,16 @@
     <!-- 教師名單管理彈窗 -->
     <div id="teacherManageModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]"><div class="bg-blue-600 p-4 text-white flex justify-between items-center flex-shrink-0"><h2 class="text-lg font-bold"><i class="fa-solid fa-users-gear mr-2"></i>教師帳號管理</h2><button onclick="closeModal('teacherManageModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 flex-1 overflow-y-auto"><div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6"><h3 class="font-bold text-blue-800 mb-3 text-sm">新增一位教師</h3><div class="flex gap-2 mb-2"><input type="text" id="newTName" placeholder="教師姓名" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400"><input type="text" id="newTPwd" placeholder="設定密碼" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400"></div><button id="addTBtn" onclick="addTeacher()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 text-sm transition">新增帳號</button></div><h3 class="font-bold text-gray-700 mb-3 border-b pb-2">目前已授權的教師名單</h3><div id="teacherListContainer" class="space-y-2"><div class="text-center text-gray-400 text-sm py-4">載入中...</div></div></div></div></div>
 
-    <!-- 🌟 全站主題設定彈窗 (加入自訂功能) -->
+    <!-- 全站主題設定彈窗 (含自訂功能) -->
     <div id="themeModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            
             <div class="bg-amber-600 p-4 text-white flex justify-between items-center flex-shrink-0">
                 <h2 class="text-lg font-bold"><i class="fa-solid fa-palette mr-2"></i>設定全站主題 (總管專用)</h2>
                 <button onclick="closeModal('themeModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            
             <div class="p-6 flex-1 overflow-y-auto">
-                <!-- 自訂主題區塊 -->
                 <div class="bg-amber-50 p-5 rounded-xl border border-amber-200 mb-6">
-                    <h3 class="font-bold text-amber-800 mb-3 text-sm"><i class="fa-solid fa-pen mr-1"></i>自訂新主題</h3>
+                    <h3 class="font-bold text-amber-800 mb-3 text-sm"><i class="fa-solid fa-pen mr-1"></i>自訂新主題 (獨立留言區)</h3>
                     <div class="flex gap-2 mb-3">
                         <input type="text" id="customThemeTag" placeholder="小標籤 (例: 閱讀推廣)" class="w-1/3 p-2 text-sm border rounded-lg focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400">
                         <input type="text" id="customThemeTitle" placeholder="主標題 (例: 晨讀心得分享牆)" class="w-2/3 p-2 text-sm border rounded-lg focus:outline-none focus:border-amber-400 font-bold focus:ring-1 focus:ring-amber-400">
@@ -199,12 +197,11 @@
                         </div>
                     </div>
                     <button onclick="applyCustomTheme()" class="w-full bg-amber-500 text-white font-bold py-2 rounded-lg hover:bg-amber-600 text-sm transition shadow-sm">
-                        <i class="fa-solid fa-cloud-arrow-up mr-1"></i> 套用並儲存自訂主題
+                        <i class="fa-solid fa-cloud-arrow-up mr-1"></i> 建立並套用新主題
                     </button>
                 </div>
                 
-                <!-- 預設快捷版型 -->
-                <h3 class="font-bold text-gray-700 mb-3 border-b pb-2 text-sm">或 快速套用節慶範本</h3>
+                <h3 class="font-bold text-gray-700 mb-3 border-b pb-2 text-sm">或 快速套用預設範本</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <button onclick="applyTheme('晨讀心得分享牆 📖 ✏️', '閱讀推廣', '歡迎興嘉國小的同學們！讀完一本好書後，請寫下 50 字心得與喜愛的一句話，並拍照上傳與全班分享喔！', 'bg-blue-50')" class="p-4 border-2 border-transparent bg-amber-50 rounded-xl hover:border-amber-400 text-left transition"><div class="text-3xl mb-2">📚</div><div class="font-bold text-gray-800 text-sm">晨讀心得牆</div></button>
                     <button onclick="applyTheme('教師節敬師感恩牆 🍎', '敬師活動', '大聲說出你的感謝！請寫下對老師的感恩與祝福。', 'bg-orange-50')" class="p-4 border-2 border-transparent bg-orange-50 rounded-xl hover:border-orange-400 text-left transition"><div class="text-3xl mb-2">🍎</div><div class="font-bold text-gray-800 text-sm">教師節敬師</div></button>
@@ -230,23 +227,21 @@
         let savedAdminPwd = ''; 
         let savedRole = '';
         let currentWinners = []; 
-        let currentThemeBg = 'bg-blue-50'; // 儲存自訂背景選擇
+        let currentThemeBg = 'bg-blue-50'; 
+        
+        // 🌟 記錄現在身處的主題，預設為晨讀心得
+        let currentThemeTitle = '晨讀心得分享牆 📖 ✏️';
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function selectColor(color) { currentColor = color; }
 
         function updateStats() {
+            // 🌟 統計數字現在只計算「目前主題」的留言
+            const themeNotes = notes.filter(n => (n.theme || '晨讀心得分享牆 📖 ✏️') === currentThemeTitle);
             document.getElementById('updateTime').innerText = `更新時間：${new Date().toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'})}`;
-            document.getElementById('statPosts').innerText = notes.length;
-            document.getElementById('statLikes').innerText = notes.reduce((sum, note) => sum + (note.likes || 0), 0);
-        }
-
-        function applyLocalTheme(title, tag, desc, bgClass) {
-            document.getElementById('headerTitle').innerText = title;
-            document.getElementById('headerTag').innerText = tag;
-            document.getElementById('headerDesc').innerText = desc;
-            document.getElementById('bodyBg').className = `min-h-screen text-gray-800 transition-colors duration-500 ${bgClass}`;
+            document.getElementById('statPosts').innerText = themeNotes.length;
+            document.getElementById('statLikes').innerText = themeNotes.reduce((sum, note) => sum + (note.likes || 0), 0);
         }
 
         // ==========================================
@@ -269,10 +264,18 @@
             if (!title || !tag) return alert('請填寫小標籤與主標題！');
             applyTheme(title, tag, desc, currentThemeBg);
             
-            // 清空輸入框
             document.getElementById('customThemeTitle').value = '';
             document.getElementById('customThemeTag').value = '';
             document.getElementById('customThemeDesc').value = '';
+        }
+
+        function applyLocalTheme(title, tag, desc, bgClass) {
+            currentThemeTitle = title; // 🌟 更新當前主題紀錄
+            document.getElementById('headerTitle').innerText = title;
+            document.getElementById('headerTag').innerText = tag;
+            document.getElementById('headerDesc').innerText = desc;
+            document.getElementById('bodyBg').className = `min-h-screen text-gray-800 transition-colors duration-500 ${bgClass}`;
+            renderWall(); // 🌟 切換主題後，立刻重新渲染屬於該主題的留言
         }
 
         function applyTheme(title, tag, desc, bgClass) {
@@ -283,7 +286,7 @@
                 formData.append('action', 'saveTheme'); formData.append('pwd', savedAdminPwd);
                 formData.append('title', title); formData.append('tag', tag); formData.append('desc', desc); formData.append('bgClass', bgClass);
                 fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => {
-                    if (data.status === 'success') alert('全站主題已成功同步至雲端！');
+                    if (data.status === 'success') alert('全站主題已切換！目前的牆面是全新的專屬空間。');
                 });
             }
         }
@@ -342,11 +345,18 @@
             renderWall(); alert('已成功登出管理模式！');
         }
 
+        // ==========================================
+        // 🎁 幸運抽籤與匯出 CSV
+        // ==========================================
         function startDraw() {
             const count = parseInt(document.getElementById('drawCount').value) || 1;
-            if (notes.length === 0) return alert('目前還沒有人投稿喔！');
             
-            const uniqueUsers = [...new Set(notes.map(n => `${n.classInfo} ${n.name}`))];
+            // 🌟 抽籤時，只從「目前主題」的留言去抽，確保名單正確！
+            const themeNotes = notes.filter(n => (n.theme || '晨讀心得分享牆 📖 ✏️') === currentThemeTitle);
+            
+            if (themeNotes.length === 0) return alert('本區目前還沒有人投稿喔！');
+            
+            const uniqueUsers = [...new Set(themeNotes.map(n => `${n.classInfo} ${n.name}`))];
             if (count > uniqueUsers.length) return alert(`設定的抽出人數 (${count}) 不能大於實際的投稿人數 (${uniqueUsers.length} 人) 喔！`);
             
             const resultArea = document.getElementById('drawResultArea');
@@ -485,13 +495,17 @@
         }
 
         function clearAllNotes() {
-            if(confirm('警告！確定要清空雲端與牆面上「所有」的留言嗎？無法復原喔！')) {
+            if(confirm(`警告！確定要清空「${currentThemeTitle}」的所有留言嗎？無法復原喔！`)) {
                 const formData = new URLSearchParams();
-                formData.append('action', 'clear'); formData.append('pwd', savedAdminPwd);
+                formData.append('action', 'clear'); 
+                formData.append('pwd', savedAdminPwd);
+                formData.append('theme', currentThemeTitle); // 🌟 只清空目前主題
+                
                 fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => {
                     if(data.status === 'success') {
-                        notes = []; localStorage.setItem('eduWallNotes', JSON.stringify(notes));
-                        renderWall(); closeModal('teacherModal'); alert('留言牆已成功清空！');
+                        notes = notes.filter(n => (n.theme || '晨讀心得分享牆 📖 ✏️') !== currentThemeTitle);
+                        localStorage.setItem('eduWallNotes', JSON.stringify(notes));
+                        renderWall(); closeModal('teacherModal'); alert('目前主題的留言牆已成功清空！');
                     } else alert(data.message);
                 });
             }
@@ -531,12 +545,15 @@
                 if (!Array.isArray(likedList)) likedList = [];
             } catch(e) { likedList = []; }
 
-            if (notes.length === 0) {
-                container.innerHTML = `<div class="w-full text-center py-20 text-gray-500 font-medium col-span-full"><i class="fa-solid fa-box-open text-4xl mb-3 block text-gray-300"></i>目前還沒有便利貼，趕快搶頭香！</div>`;
+            // 🌟 牆面現在「只顯示目前主題」的留言
+            const themeNotes = notes.filter(n => (n.theme || '晨讀心得分享牆 📖 ✏️') === currentThemeTitle);
+
+            if (themeNotes.length === 0) {
+                container.innerHTML = `<div class="w-full text-center py-20 text-gray-500 font-medium col-span-full"><i class="fa-solid fa-box-open text-4xl mb-3 block text-gray-300"></i>本區目前還沒有便利貼，趕快搶頭香！</div>`;
                 updateStats(); return;
             }
 
-            const displayNotes = [...notes].reverse(); 
+            const displayNotes = [...themeNotes].reverse(); 
             displayNotes.forEach(note => {
                 const card = document.createElement('div');
                 card.className = `masonry-item note-card bg-white p-4 rounded-xl shadow-sm border border-gray-200 group`;
@@ -589,7 +606,8 @@
             const newNote = {
                 id: 'id_' + Date.now().toString(),
                 classInfo: classInfo, name: name, title: title, content: content,
-                color: currentColor, date: '剛剛', likes: 0, image: currentImageBase64 
+                color: currentColor, date: '剛剛', likes: 0, image: currentImageBase64,
+                theme: currentThemeTitle // 🌟 投稿時，標記這篇留言屬於哪個主題
             };
 
             notes.push(newNote); localStorage.setItem('eduWallNotes', JSON.stringify(notes)); renderWall();
@@ -638,6 +656,7 @@
                 formData.append('classInfo', data.classInfo); formData.append('name', data.name);
                 formData.append('title', data.title); formData.append('content', data.content);
                 formData.append('color', data.color);
+                formData.append('theme', data.theme); // 🌟 將主題傳給雲端
                 if (data.image) formData.append('image', data.image); 
             }
             if(action === 'like') formData.append('likes', data.likes);
@@ -650,8 +669,10 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>同步中';
             fetch(GAS_URL).then(res => res.json()).then(data => {
                 if(data.status === 'success') {
+                    if(data.notes) { notes = data.notes; localStorage.setItem('eduWallNotes', JSON.stringify(notes)); }
+                    // 🌟 同步時，先套用雲端設定的主題，畫面上就會只出現該主題的留言
                     if(data.theme) applyLocalTheme(data.theme.title, data.theme.tag, data.theme.desc, data.theme.bgClass);
-                    if(data.notes) { notes = data.notes; localStorage.setItem('eduWallNotes', JSON.stringify(notes)); renderWall(); }
+                    else renderWall(); 
                 }
                 btn.innerHTML = '<i class="fa-solid fa-check text-green-600 mr-1"></i>已同步';
                 setTimeout(() => btn.innerHTML = originalHTML, 2000);
