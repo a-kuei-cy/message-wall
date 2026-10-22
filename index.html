@@ -129,8 +129,8 @@
             
             <div id="adminPanel" class="p-6 hidden space-y-4 overflow-y-auto">
                 <div class="text-green-600 font-bold border-b pb-3 mb-2 flex items-center"><i class="fa-solid fa-check-circle mr-2 text-xl"></i>已成功登入管理模式</div>
-                <button id="superAdminDrawBtn" onclick="openModal('drawModal')" class="hidden w-full bg-yellow-100 text-yellow-700 font-bold py-3 rounded-xl hover:bg-yellow-200 border border-yellow-200 transition">
-                    <i class="fa-solid fa-gift mr-2"></i>抽籤與匯出 (總管)
+                <button id="superAdminDrawBtn" onclick="openDrawModal()" class="hidden w-full bg-yellow-100 text-yellow-700 font-bold py-3 rounded-xl hover:bg-yellow-200 border border-yellow-200 transition">
+                    <i class="fa-solid fa-gift mr-2"></i>分類抽籤與匯出 (總管)
                 </button>
                 <button id="superAdminBtn" onclick="openTeacherManage()" class="hidden w-full bg-blue-100 text-blue-700 font-bold py-3 rounded-xl hover:bg-blue-200 border border-blue-200 transition">
                     <i class="fa-solid fa-users-gear mr-2"></i>管理教師名單 (總管)
@@ -142,24 +142,35 @@
         </div>
     </div>
 
-    <!-- 幸運抽籤彈窗 -->
+    <!-- 🎁 進階分類抽籤與匯出彈窗 -->
     <div id="drawModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden text-center flex flex-col max-h-[90vh]">
+            
             <div class="bg-yellow-500 p-4 text-white flex justify-between items-center flex-shrink-0">
-                <h2 class="text-lg font-bold"><i class="fa-solid fa-gift mr-2"></i>幸運抽籤與匯出</h2>
+                <h2 class="text-lg font-bold"><i class="fa-solid fa-gift mr-2"></i>分類幸運抽籤</h2>
                 <button onclick="closeModal('drawModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
+            
             <div class="p-6 flex-1 overflow-y-auto relative">
-                <p class="text-gray-600 mb-4 font-medium text-sm">系統將自動過濾重複發表者，從「目前主題」中抽出幸運兒！</p>
-                <div class="flex items-center justify-center gap-3 mb-6 bg-yellow-50 p-4 rounded-xl border border-yellow-100">
-                    <label class="font-bold text-gray-700">抽出人數：</label>
+                <!-- 🌟 抽籤分類下拉選單 -->
+                <div class="mb-4 text-left">
+                    <label class="font-bold text-gray-700 block mb-2 text-sm">請選擇要抽籤的活動分類：</label>
+                    <select id="drawThemeSelect" class="w-full p-2 border-2 border-yellow-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 font-bold text-gray-700">
+                        <!-- 由 JS 動態產生 -->
+                    </select>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 mb-6 bg-yellow-50 p-4 rounded-xl border border-yellow-100">
+                    <label class="font-bold text-gray-700 text-sm">設定抽出幸運兒數量：</label>
                     <input type="number" id="drawCount" value="1" min="1" class="w-20 p-2 border border-yellow-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-yellow-400 font-bold text-lg">
                 </div>
+                
                 <button id="drawBtn" onclick="startDraw()" class="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-bold py-3 rounded-xl hover:shadow-lg transition transform hover:-translate-y-0.5 text-lg flex-shrink-0">
                     🎉 開始抽籤
                 </button>
+                
                 <div id="drawResultArea" class="mt-6 hidden">
-                    <h3 class="text-lg font-bold text-gray-800 border-b-2 border-yellow-200 pb-2 mb-4">🏆 本區得獎者</h3>
+                    <h3 class="text-lg font-bold text-gray-800 border-b-2 border-yellow-200 pb-2 mb-4">🏆 恭喜以下得獎者</h3>
                     <div id="drawResultList" class="space-y-3 mb-4"></div>
                     <div id="exportArea" class="sticky bottom-0 bg-white pt-2 pb-1 border-t border-gray-100 mt-4"></div>
                 </div>
@@ -168,7 +179,7 @@
     </div>
 
     <!-- 教師名單管理彈窗 -->
-    <div id="teacherManageModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]"><div class="bg-blue-600 p-4 text-white flex justify-between items-center flex-shrink-0"><h2 class="text-lg font-bold"><i class="fa-solid fa-users-gear mr-2"></i>教師帳號管理</h2><button onclick="closeModal('teacherManageModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 flex-1 overflow-y-auto"><div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6"><h3 class="font-bold text-blue-800 mb-3 text-sm">新增一位教師</h3><div class="flex gap-2 mb-2"><input type="text" id="newTName" placeholder="教師姓名" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400"><input type="text" id="newTPwd" placeholder="設定密碼" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400"></div><button id="addTBtn" onclick="addTeacher()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 text-sm transition">新增帳號</button></div><h3 class="font-bold text-gray-700 mb-3 border-b pb-2">目前已授權的教師名單</h3><div id="teacherListContainer" class="space-y-2"><div class="text-center text-gray-400 text-sm py-4">載入中...</div></div></div></div></div>
+    <div id="teacherManageModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[80vh]"><div class="bg-blue-600 p-4 text-white flex justify-between items-center flex-shrink-0"><h2 class="text-lg font-bold"><i class="fa-solid fa-users-gear mr-2"></i>教師帳號管理</h2><button onclick="closeModal('teacherManageModal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 flex-1 overflow-y-auto"><div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6"><h3 class="font-bold text-blue-800 mb-3 text-sm">新增一位教師</h3><div class="flex gap-2 mb-2"><input type="text" id="newTName" placeholder="教師姓名" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400"><input type="text" id="newTPwd" placeholder="設定密碼" class="w-1/2 p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400"></div><button id="addTBtn" onclick="addTeacher()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 text-sm transition">新增帳號</button></div><h3 class="font-bold text-gray-700 mb-3 border-b pb-2">目前已授權的教師名單</h3><div id="teacherListContainer" class="space-y-2"><div class="text-center text-gray-400 text-sm py-4">載入中...</div></div></div></div></div>
 
     <!-- 全站主題設定彈窗 (含自訂功能) -->
     <div id="themeModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -228,8 +239,6 @@
         let savedRole = '';
         let currentWinners = []; 
         let currentThemeBg = 'bg-blue-50'; 
-        
-        // 🌟 記錄現在身處的主題，預設為晨讀心得
         let currentThemeTitle = '晨讀心得分享牆 📖 ✏️';
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
@@ -237,16 +246,12 @@
         function selectColor(color) { currentColor = color; }
 
         function updateStats() {
-            // 🌟 統計數字現在只計算「目前主題」的留言
             const themeNotes = notes.filter(n => (n.theme || '晨讀心得分享牆 📖 ✏️') === currentThemeTitle);
             document.getElementById('updateTime').innerText = `更新時間：${new Date().toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'})}`;
             document.getElementById('statPosts').innerText = themeNotes.length;
             document.getElementById('statLikes').innerText = themeNotes.reduce((sum, note) => sum + (note.likes || 0), 0);
         }
 
-        // ==========================================
-        // 主題控制
-        // ==========================================
         function selectThemeBg(bgClass, event) {
             currentThemeBg = bgClass;
             document.querySelectorAll('.theme-bg-option').forEach(el => {
@@ -270,12 +275,12 @@
         }
 
         function applyLocalTheme(title, tag, desc, bgClass) {
-            currentThemeTitle = title; // 🌟 更新當前主題紀錄
+            currentThemeTitle = title;
             document.getElementById('headerTitle').innerText = title;
             document.getElementById('headerTag').innerText = tag;
             document.getElementById('headerDesc').innerText = desc;
             document.getElementById('bodyBg').className = `min-h-screen text-gray-800 transition-colors duration-500 ${bgClass}`;
-            renderWall(); // 🌟 切換主題後，立刻重新渲染屬於該主題的留言
+            renderWall(); 
         }
 
         function applyTheme(title, tag, desc, bgClass) {
@@ -346,18 +351,33 @@
         }
 
         // ==========================================
-        // 🎁 幸運抽籤與匯出 CSV
+        // 🎁 升級版：指定分類抽籤與匯出
         // ==========================================
+        function openDrawModal() {
+            openModal('drawModal');
+            // 抓出資料庫中所有出現過的主題分類
+            const uniqueThemes = [...new Set(notes.map(n => n.theme || '晨讀心得分享牆 📖 ✏️'))];
+            if(!uniqueThemes.includes(currentThemeTitle)) uniqueThemes.push(currentThemeTitle);
+            
+            // 動態產生下拉選單
+            const select = document.getElementById('drawThemeSelect');
+            select.innerHTML = uniqueThemes.map(t => `<option value="${t}" ${t === currentThemeTitle ? 'selected' : ''}>${t}</option>`).join('');
+            
+            document.getElementById('drawResultArea').classList.add('hidden');
+            document.getElementById('drawBtn').disabled = false;
+        }
+
         function startDraw() {
             const count = parseInt(document.getElementById('drawCount').value) || 1;
+            const selectedTheme = document.getElementById('drawThemeSelect').value;
             
-            // 🌟 抽籤時，只從「目前主題」的留言去抽，確保名單正確！
-            const themeNotes = notes.filter(n => (n.theme || '晨讀心得分享牆 📖 ✏️') === currentThemeTitle);
+            // 🌟 精準從下拉選單指定的分類中撈出名單
+            const themeNotes = notes.filter(n => (n.theme || '晨讀心得分享牆 📖 ✏️') === selectedTheme);
             
-            if (themeNotes.length === 0) return alert('本區目前還沒有人投稿喔！');
+            if (themeNotes.length === 0) return alert(`「${selectedTheme}」這個分類目前還沒有人投稿喔！`);
             
             const uniqueUsers = [...new Set(themeNotes.map(n => `${n.classInfo} ${n.name}`))];
-            if (count > uniqueUsers.length) return alert(`設定的抽出人數 (${count}) 不能大於實際的投稿人數 (${uniqueUsers.length} 人) 喔！`);
+            if (count > uniqueUsers.length) return alert(`設定的抽出人數 (${count}) 不能大於該分類實際的投稿人數 (${uniqueUsers.length} 人) 喔！`);
             
             const resultArea = document.getElementById('drawResultArea');
             const resultList = document.getElementById('drawResultList');
@@ -386,7 +406,7 @@
                 
                 if(exportArea) {
                     exportArea.innerHTML = `
-                        <button onclick='exportWinnersCSV()' class="w-full bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 transition shadow-sm mt-2">
+                        <button onclick="exportWinnersCSV('${selectedTheme}')" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 transition shadow-sm mt-2">
                             <i class="fa-solid fa-download mr-2"></i>下載中獎名單 (CSV)
                         </button>
                     `;
@@ -401,9 +421,9 @@
             }, 1500); 
         }
 
-        function exportWinnersCSV() {
+        function exportWinnersCSV(themeName) {
             if(!currentWinners || currentWinners.length === 0) return;
-            let csvContent = "\uFEFF得獎者班級與姓名\n";
+            let csvContent = `\uFEFF抽獎分類：${themeName}\n得獎者班級與姓名\n`;
             currentWinners.forEach(w => { csvContent += `${w}\n`; });
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
@@ -413,6 +433,9 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
+        // ==========================================
+        // 其他系統功能
+        // ==========================================
         function openTeacherManage() { openModal('teacherManageModal'); loadTeacherList(); }
         function loadTeacherList() {
             const container = document.getElementById('teacherListContainer');
@@ -499,7 +522,7 @@
                 const formData = new URLSearchParams();
                 formData.append('action', 'clear'); 
                 formData.append('pwd', savedAdminPwd);
-                formData.append('theme', currentThemeTitle); // 🌟 只清空目前主題
+                formData.append('theme', currentThemeTitle); 
                 
                 fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => {
                     if(data.status === 'success') {
@@ -545,7 +568,6 @@
                 if (!Array.isArray(likedList)) likedList = [];
             } catch(e) { likedList = []; }
 
-            // 🌟 牆面現在「只顯示目前主題」的留言
             const themeNotes = notes.filter(n => (n.theme || '晨讀心得分享牆 📖 ✏️') === currentThemeTitle);
 
             if (themeNotes.length === 0) {
@@ -573,12 +595,19 @@
                 const isLiked = likedList.includes(note.id);
                 const thumbColor = isLiked ? 'text-orange-500' : (note.likes > 0 ? 'text-orange-400' : '');
                 const cursorStyle = isLiked ? 'cursor-not-allowed opacity-80' : 'hover:text-orange-500';
+                
+                // 🌟 自動美化時間顯示
+                let displayDate = note.date;
+                if (displayDate && displayDate.includes('T')) {
+                    const d = new Date(displayDate);
+                    if(!isNaN(d)) displayDate = `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}`;
+                }
 
                 card.innerHTML = `
                     ${adminButtons}
                     <div class="flex items-center gap-3 mb-3 pr-10">
                         <div class="w-9 h-9 rounded-full ${note.color} flex items-center justify-center text-white text-sm shadow-sm flex-shrink-0"><i class="fa-solid fa-user-graduate"></i></div>
-                        <div class="truncate"><div class="font-bold text-sm text-gray-900 truncate">${note.classInfo} ${note.name}</div><div class="text-xs text-gray-500">${note.date}</div></div>
+                        <div class="truncate"><div class="font-bold text-sm text-gray-900 truncate">${note.classInfo} ${note.name}</div><div class="text-xs text-gray-500">${displayDate}</div></div>
                     </div>
                     ${imgHTML}
                     <h3 class="font-bold text-gray-800 text-[16px] mb-1 leading-snug break-words">${note.title}</h3>
@@ -606,8 +635,8 @@
             const newNote = {
                 id: 'id_' + Date.now().toString(),
                 classInfo: classInfo, name: name, title: title, content: content,
-                color: currentColor, date: '剛剛', likes: 0, image: currentImageBase64,
-                theme: currentThemeTitle // 🌟 投稿時，標記這篇留言屬於哪個主題
+                color: currentColor, date: new Date().toLocaleDateString('zh-TW'), likes: 0, image: currentImageBase64,
+                theme: currentThemeTitle 
             };
 
             notes.push(newNote); localStorage.setItem('eduWallNotes', JSON.stringify(notes)); renderWall();
@@ -656,7 +685,7 @@
                 formData.append('classInfo', data.classInfo); formData.append('name', data.name);
                 formData.append('title', data.title); formData.append('content', data.content);
                 formData.append('color', data.color);
-                formData.append('theme', data.theme); // 🌟 將主題傳給雲端
+                formData.append('theme', data.theme); 
                 if (data.image) formData.append('image', data.image); 
             }
             if(action === 'like') formData.append('likes', data.likes);
@@ -670,7 +699,6 @@
             fetch(GAS_URL).then(res => res.json()).then(data => {
                 if(data.status === 'success') {
                     if(data.notes) { notes = data.notes; localStorage.setItem('eduWallNotes', JSON.stringify(notes)); }
-                    // 🌟 同步時，先套用雲端設定的主題，畫面上就會只出現該主題的留言
                     if(data.theme) applyLocalTheme(data.theme.title, data.theme.tag, data.theme.desc, data.theme.bgClass);
                     else renderWall(); 
                 }
